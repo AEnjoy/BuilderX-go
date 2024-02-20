@@ -1,0 +1,44 @@
+configType: build-config-local
+baseConfig:
+  inputFile: "."
+  outputFile:
+  ldflags:
+    - "XXX=YYY"
+    -  "-ldflags '-static'"
+  varFlags:
+    - "main.xxx=yyy"
+    - "main.aaa=bbb"
+  v: true
+  cgo: true
+otherFlags:
+  forceBuildPackage: false
+  buildProcess:
+  race:
+  msan:
+  cover:
+  coverMode:
+  work:
+  asmFlags:
+    - "XXX=YYY"
+    - "-asmflags '-static'"
+  buildMode:
+  buildVcs: auto
+  compiler:
+  gccgoflags:
+    - "XXX=YYY"
+    - "-gccgoflags '-static'"
+  gcflags:
+    - "XXX=YYY"
+    - "-gcflags '-static'"
+  linkshared:
+  mod:
+  modcacherw:
+  modfile:
+  overlay:
+  pgo:
+  pkgdir:
+  tags:
+  targets:
+    - "linux/amd64"
+    - "windows/amd64"
+    - "darwin/amd64"

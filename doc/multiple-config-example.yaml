@@ -1,0 +1,4 @@
+configType: multiple-config
+configFile:
+  - "config1.yaml"
+  - "config2.yaml"

@@ -1,0 +1,36 @@
+configType: build-config-local
+configFile: []
+baseConfig:
+    remoteConfig:
+        remoteStore: ""
+        localStoreTemp: ""
+        remote-clone-way: ""
+    inputFile: null
+    outputFile: null
+    ldflags: []
+    varFlags: []
+    v: false
+    cgo: false
+otherFlags:
+    forceBuildPackage: false
+    buildProcess: null
+    race: false
+    msan: false
+    cover: false
+    coverMode: ""
+    work: false
+    asmFlags: []
+    buildMode: ""
+    buildVcs: ""
+    compiler: ""
+    gccgoflags: []
+    gcflags: []
+    linkshared: false
+    mod: ""
+    modcacherw: false
+    modfile: null
+    overlay: null
+    pgo: null
+    pkgdir: null
+    tags: null
+    targets: []

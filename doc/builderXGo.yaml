@@ -1,0 +1,39 @@
+configType: build-config-local
+baseConfig:
+  inputFile: "."
+  outputFile: ""
+  ldflags:
+    -  "-s"
+    -  "-w"
+  varFlags:
+    - "main.Version=1.0Dev"
+    - "main.BuildTime=2024-2-19-23:24:56"
+    - "main.GoVersion=1.21.5"
+  v: true
+  cgo: true
+otherFlags:
+  forceBuildPackage: false
+  buildProcess:
+  race:
+  msan:
+  cover:
+  coverMode:
+  work:
+  asmFlags: []
+  buildMode:
+  buildVcs: auto
+  compiler:
+  gccgoflags:
+  gcflags: []
+  linkshared:
+  mod:
+  modcacherw:
+  modfile:
+  overlay:
+  pgo:
+  pkgdir:
+  tags:
+  targets:
+    - "linux/amd64"
+    - "windows/amd64"
+    - "darwin/amd64"
