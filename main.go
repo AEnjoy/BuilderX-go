@@ -42,7 +42,7 @@ var (
 
 func init() {
 	pflag.BoolVar(&notRunningCheck, "not-running-check", false, "不检查是否正在运行。如果指定了该参数，则 BuilderX将不检查服务是否正在运行。默认检查是否正在运行。")
-	pflag.BoolVar(&notLoadDefault, "not-load-temple-default", false, "不加载默认模板配置文件。如果指定了该参数，则 BuilderX将不加载模板配置文件而使用内置配置。默认外部模板配置文件路径：当前目录下的config.yaml或/etc/BuilderX/config.yaml。")
+	pflag.BoolVar(&notLoadDefault, "not-load-temple-default", false, "不加载默认模板配置文件(仅yaml,json不支持导入模板)。如果指定了该参数，则 BuilderX将不加载模板配置文件而使用内置配置。默认外部模板配置文件路径：当前目录下的config.yaml或/etc/BuilderX/config.yaml。")
 	//var remoteBranch = pflag.StringP("remoteBranch", "b", "master", "远程项目分支。如果指定了该参数，则 BuilderX将使用该分支构建。默认master")
 	global.WebPort = *pflag.StringP("port", "p", "18088", "Web管理面板的端口号。")
 	pflag.BoolVarP(&server, "web", "w", false, "启动 BuilderX Web管理面板。如果指定了该参数，则 BuilderX 将启动 Web 管理面板，并忽略除--not-load-temple-default外其它命令行参数。")
@@ -96,7 +96,7 @@ func main() {
 		if exportType == "yaml" {
 			builder.ExportDefaultConfigYaml(export)
 		} else if exportType == "json" {
-			//todo
+			builder.ExportDefaultConfigJson(export)
 		}
 		lock.Exit(0)
 	}
@@ -135,8 +135,15 @@ func main() {
 		lock.Exit(0)
 	}
 	if json != "null" {
-		//todo 使用json文件构建
-		lock.Exit(3, "Not implemented yet.")
+		task := builder.UsingJson(json, "Build from console.")
+		if len(task) == 0 {
+			logrus.Errorln("No task found in json file. Exit.")
+			lock.Exit(1, "No task found in json file. Exit.")
+		}
+		for _, t := range task {
+			t.Build()
+		}
+		lock.Exit(0)
 	}
 	println("需要指定参数")
 	pflag.Usage()

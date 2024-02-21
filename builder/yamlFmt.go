@@ -247,14 +247,3 @@ func LoadDefault() {
 	}
 	logrus.Warningln("No config file found, using built-in-default config.")
 }
-
-func init() {
-	os.Mkdir("project", 0750)
-	var d = yamlConfig{}.BaseConfig
-	d.RemoteConfig.LocalStoreTemp = "./project"
-	defaultConfig.BaseConfig = d
-}
-
-func EnableCGO() {
-	defaultConfig.BaseConfig.Cgo = true
-}

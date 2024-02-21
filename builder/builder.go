@@ -422,3 +422,16 @@ func (c *BuildConfig) Build() bool {
 	//<-ioTools.GetOutputContinually("go", "build", c.command)
 	return true
 }
+
+func EnableCGO() {
+	defaultConfig.BaseConfig.Cgo = true
+}
+func init() {
+	os.Mkdir("project", 0750)
+	var d = yamlConfig{}.BaseConfig
+	d.RemoteConfig.LocalStoreTemp = "./project"
+	defaultConfig.BaseConfig = d
+	var d2 = jsonConfig{}.BaseConfig
+	d2.RemoteConfig.LocalStoreTemp = "./project"
+	defaultConfigJ.BaseConfig = d2
+}

@@ -1,0 +1,48 @@
+{
+  "configType": "build-config-local",
+  "configApiVersion": 1,
+  "configMinApiVersion": 1,
+  "baseConfig": {
+    "inputFile": ".",
+    "outputFile": "",
+    "ldflags": [
+      "-s",
+      "-w"
+    ],
+    "varFlags": [
+      "main.Version=0.0.1-Dev",
+      "main.BuildTime=2024-2-21-18:25:19",
+      "main.GoVersion=1.21.5"
+    ],
+    "v": true,
+    "cgo": true
+  },
+  "otherFlags": {
+    "forceBuildPackage": false,
+    "buildProcess": null,
+    "race": false,
+    "msan": false,
+    "cover": false,
+    "coverMode": "",
+    "work": false,
+    "asmFlags": [],
+    "buildMode": "",
+    "buildVcs": "auto",
+    "compiler": "",
+    "gccgoflags": [],
+    "gcflags": [],
+    "linkshared": false,
+    "mod": "",
+    "modcacherw": false,
+    "modfile": "",
+    "overlay": "",
+    "pgo": "",
+    "pkgdir": "",
+    "tags": "",
+    "targets": [
+      "linux/amd64",
+      "windows/amd64",
+      "darwin/amd64"
+    ]
+  }
+}

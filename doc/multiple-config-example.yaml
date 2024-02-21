@@ -1,6 +1,6 @@
 configType: multiple-config
-configApiVision: 1
-configMinApiVision: 1
+configApiVersion: 1
+configMinApiVersion: 1
 configFile:
   - "config1.yaml"
   - "config2.yaml"
