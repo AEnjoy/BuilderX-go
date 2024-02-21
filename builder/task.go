@@ -18,7 +18,7 @@ func (t *Task) Build() {
 	if t.Config.ParseConfig() {
 		logrus.Info("初始化编译配置成功。")
 		if t.Config.Build() {
-			logrus.Info("编译成功。输出文件：", t.Config.OutputFile)
+			logrus.Info("编译成功。输出:", t.Config.OutputFile, " Package:", t.Config.outName)
 		} else {
 			logrus.Info("编译失败。")
 		}

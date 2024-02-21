@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+//export  FileReadAll
 func FileReadAll(filename string) string {
 	var str = ""
 	file, _ := os.Open(filename)

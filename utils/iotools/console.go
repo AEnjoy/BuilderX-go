@@ -11,6 +11,9 @@ import (
 	"sync"
 )
 
+// 执行外部命令, 并获取输出
+//
+//export GetOutputDirectly
 func GetOutputDirectly(name string, args ...string) (output []byte) {
 	cmd := exec.Command(name, args...)
 	output, err := cmd.Output() // 等到命令执行完, 一次性获取输出
@@ -24,10 +27,11 @@ func GetOutputDirectly(name string, args ...string) (output []byte) {
 	return
 }
 
-// GetOutputContinually
 // 不断输出到stdout, 直到结束
 //
 //	<-GetOutputContinually("tree")
+//
+//export GetOutputContinually
 func GetOutputContinually(name string, args ...string) <-chan struct{} {
 	cmd := exec.Command(name, args...)
 	closed := make(chan struct{})
@@ -62,6 +66,10 @@ func GetOutputContinually(name string, args ...string) <-chan struct{} {
 	}
 	return closed
 }
+
+// 不断输出到stdout, 直到结束(支持交互)
+//
+//export GetOutputContinually2
 func GetOutputContinually2(name string, args ...string) {
 	getOutput := func(reader *bufio.Reader) {
 		var sumOutput string //统计屏幕的全部输出内容
@@ -90,7 +98,7 @@ func GetOutputContinually2(name string, args ...string) {
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		logrus.Errorln("ERROR:", err)
-		os.Exit(1)
+		//os.Exit(1)
 	}
 	readout := bufio.NewReader(stdout)
 	go func() {
@@ -102,7 +110,7 @@ func GetOutputContinually2(name string, args ...string) {
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		logrus.Errorln("ERROR:", err)
-		os.Exit(1)
+		//os.Exit(1)
 	}
 	readerr := bufio.NewReader(stderr)
 	go func() {
@@ -114,7 +122,7 @@ func GetOutputContinually2(name string, args ...string) {
 	err = cmd.Run()
 	if err != nil {
 		logrus.Errorln("ERROR:", err)
-		os.Exit(1)
+		//os.Exit(1)
 	}
 	wg.Wait()
 	return

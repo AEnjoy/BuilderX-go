@@ -9,9 +9,9 @@ func Exit(code int, msg ...interface{}) {
 	if code != 0 {
 		logrus.Errorln("ServerExitWithMessage:", msg)
 	} else {
-		logrus.Info("ServerExitWithMessage:", msg)
+		logrus.Infoln("ServerExitWithMessage:", msg)
 	}
-	logrus.Info("ServerExitWithCode:", code)
+	logrus.Infoln("ServerExitWithCode:", code)
 	UnLock()
 	os.Exit(code)
 }
@@ -19,7 +19,7 @@ func ExitHandle(exitChan chan os.Signal) {
 	for {
 		select {
 		case sig := <-exitChan:
-			logrus.Info("收到来自系统的信号：", sig)
+			logrus.Infoln("收到来自系统的信号：", sig)
 			Exit(2, sig.String())
 		}
 	}

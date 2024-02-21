@@ -1,4 +1,6 @@
 configType: build-config-remote
+configApiVision: 1
+configMinApiVision: 1
 baseConfig:
   remoteConfig:
     remoteStore: "github.com/aenjoy/BuilderX"

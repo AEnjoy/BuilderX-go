@@ -1,4 +1,6 @@
 configType: build-config-local
+configApiVision: 1
+configMinApiVision: 1
 baseConfig:
   inputFile: "."
   outputFile: ""
@@ -6,8 +8,8 @@ baseConfig:
     -  "-s"
     -  "-w"
   varFlags:
-    - "main.Version=1.0Dev"
-    - "main.BuildTime=2024-2-19-23:24:56"
+    - "main.Version=0.0.1-Dev"
+    - "main.BuildTime=2024-2-21-18:25:19"
     - "main.GoVersion=1.21.5"
   v: true
   cgo: true

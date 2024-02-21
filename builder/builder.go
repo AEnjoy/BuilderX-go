@@ -2,13 +2,19 @@ package builder
 
 import (
 	"BuilderX/global"
+	"BuilderX/utils/debugTools"
 	"BuilderX/utils/iotools"
+	"bufio"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
+
+var OutFileNameFmt string // 输出文件名格式: default/a default:使用go默认输出格式(packageName[.exe]),a:{package-name}-{os}-{arch}[.exe]
 
 // VarFlag
 // 传递给main.go 中属性参数的值
@@ -28,16 +34,21 @@ type BuildArch struct {
 	GOARCH string
 }
 
+func getNowArch() BuildArch {
+	return BuildArch{GOOS: runtime.GOOS, GOARCH: runtime.GOARCH}
+}
+
 // BuildConfig
 //
 //	构建配置 本地项目
 type BuildConfig struct {
 	InputFile  string    //单个文件名或路径
 	OutputFile string    //输出文件名或路径
+	outName    string    //命令提示中输出的文件名
 	Ldflags    []string  //传递给链接参数的值
 	VarFlags   []VarFlag //传递给main.go 中属性参数的值
 	V          bool      // -v 打印编译的包名和文件名
-	Cgo        bool      //enable cgo
+	Cgo        bool      //enable cgo default false
 	//不常用参数
 	ForceBuildPackage bool     // -a 强制重新生成已更新的包。
 	BuildProcess      int      //-p n 编译线程数
@@ -68,6 +79,9 @@ type BuildConfig struct {
 }
 
 func (c *BuildConfig) ParseConfig() bool {
+	if c.status { //防止重复处理
+		return true
+	}
 	_, err := exec.LookPath("go")
 	c.command2 = append(c.command2, "build")
 	if err != nil {
@@ -87,14 +101,22 @@ func (c *BuildConfig) ParseConfig() bool {
 		//文件判断
 		_, err = os.Stat(c.InputFile)
 		if err != nil {
-			logrus.Errorln("未找到输入包，请检查输入文件路径是否正确")
+			logrus.Errorln("未找到输入包（文件），请检查输入文件（包）路径是否正确.", err)
+			t, _ := os.Getwd()
+			logrus.Infoln("输入包信息:", c.InputFile, "当前路径：", t)
 			c.command2 = make([]string, 0)
 			return false
 		}
 		// todo 包名判断
+	} else {
+		file, _ := os.Open("go.mod")
+		defer file.Close()
+		r := bufio.NewReader(file)
+		l, _, _ := r.ReadLine()
+		c.outName = strings.Replace(string(l), "module", "", 1)
 	}
 	if c.OutputFile != "" {
-		logrus.Info("输出文件路径为:", c.OutputFile)
+		logrus.Infoln("输出文件路径为:", c.OutputFile)
 		c.command += "-o " + `"` + c.OutputFile + `" `
 		c.command2 = append(c.command2, "-o", c.OutputFile)
 	}
@@ -289,18 +311,52 @@ func (c *BuildConfig) ParseConfig() bool {
 		c.command2 = append(c.command2, command)
 		c.command += `" `
 	}
-	logrus.Debugln("Command:", c.command)
+	debugTools.PrintlnOnlyInDebugMode("Command:", c.command)
 	c.status = true
 	return true
 }
+
 func (c *BuildConfig) Build() bool {
 	if !c.status {
 		logrus.Errorln("编译状态未就绪，请先执行ParseConfig再进行编译")
 		return false
 	}
-	logrus.Info("开始编译")
-	logrus.Info("编译命令:", c.command2)
-	iotools.GetOutputContinually2("go", c.command2...)
+	logrus.Infoln("开始编译")
+	t, _ := os.Getwd()
+	debugTools.PrintlnOnlyInDebugMode("编译命令:", c.command2, "当前路径:", t)
+	if len(c.Targets) == 0 {
+		logrus.Warningln("未设置编译目标，将默认编译目标为当前平台")
+		c.Targets = append(c.Targets, getNowArch())
+	}
+	for _, target := range c.Targets {
+		os.Setenv("GOOS", target.GOOS)
+		os.Setenv("GOARCH", target.GOARCH)
+		logrus.Infoln("编译平台：", target.GOOS, "/", target.GOARCH)
+		if OutFileNameFmt == "a" {
+			var flag = false //有没有-o
+			for i := 0; i < len(c.command2); i++ {
+				if c.command2[i] == "-o" {
+					flag = true
+					if iotools.IsStrAInStrB("./bin/", c.command2[i+1]) {
+						if runtime.GOOS == "windows" {
+							c.command2[i+1] += c.outName + "-" + target.GOOS + "-" + target.GOARCH + ".exe"
+						} else {
+							c.command2[i+1] += c.outName + "-" + target.GOOS + "-" + target.GOARCH
+						}
+					}
+				}
+			}
+			if !flag {
+				if runtime.GOOS == "windows" {
+					c.command2 = append(c.command2, "-o", c.outName+"-"+target.GOOS+"-"+target.GOARCH+".exe")
+				} else {
+					c.command2 = append(c.command2, "-o", c.outName+"-"+target.GOOS+"-"+target.GOARCH)
+				}
+			}
+		}
+		iotools.GetOutputContinually2("go", c.command2...)
+	}
+	os.Chdir(global.RootDir)
 	//<-iotools.GetOutputContinually("go", "build", c.command)
 	return true
 }

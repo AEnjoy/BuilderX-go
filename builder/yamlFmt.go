@@ -7,6 +7,7 @@ import (
 	"BuilderX/utils/iotools"
 	"fmt"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -16,9 +17,11 @@ import (
 )
 
 type yamlConfig struct {
-	ConfigType string   `yaml:"configType"`
-	ConfigFile []string `yaml:"configFile"`
-	BaseConfig struct {
+	ConfigType          string   `yaml:"configType"`
+	ConfigFile          []string `yaml:"configFile"`
+	ConfigApiVersion    int      `yaml:"configApiVersion"`
+	ConfigMinApiVersion int      `yaml:"configMinApiVersion"`
+	BaseConfig          struct {
 		RemoteConfig struct {
 			RemoteStore    string `yaml:"remoteStore"`
 			LocalStoreTemp string `yaml:"localStoreTemp"`
@@ -27,8 +30,8 @@ type yamlConfig struct {
 		InputFile  string   `yaml:"inputFile"`
 		OutputFile string   `yaml:"outputFile"`
 		Ldflags    []string `yaml:"ldflags"`
-		VarFlags   []string `yaml:"varFlags"`
-		V          bool     `yaml:"v"` //verbose
+		VarFlags   []string `yaml:"varFlags"` //支持{}宏
+		V          bool     `yaml:"v"`        //verbose
 		Cgo        bool     `yaml:"cgo"`
 	} `yaml:"baseConfig"`
 	OtherFlags struct {
@@ -57,11 +60,17 @@ type yamlConfig struct {
 	} `yaml:"otherFlags"`
 }
 
+var defaultConfig = yamlConfig{
+	ConfigType:          "build-config-local",
+	ConfigApiVersion:    global.ConfigApiVersion,
+	ConfigMinApiVersion: 1,
+}
+
 func UsingYaml(f string, taskName string) []Task {
-	logrus.Info("Using YAML: ", f, " parse...")
+	logrus.Infoln("Using YAML: ", f, " parse...")
 	file, err := os.Open(f)
 	if err != nil {
-		logrus.Error("Error opening file: ", f, err)
+		logrus.Errorln("Error opening file: ", f, err)
 		return nil
 	}
 	defer file.Close()
@@ -72,66 +81,87 @@ func UsingYaml(f string, taskName string) []Task {
 		logrus.Errorln("Error decoding YAML:", err)
 		return nil
 	}
+	if global.ConfigApiVersion < config.ConfigMinApiVersion {
+		logrus.Errorln("The current configuration version supported by BuilderX is too low to load the configuration file, and you should upgrade BuilderX.: SupportVersion:", global.ConfigApiVersion, " ConfigVersion:", config.ConfigMinApiVersion)
+		return nil
+	}
 	var returnVal []Task
 	if config.ConfigType == "multiple-config" {
-		logrus.Info("Using multiple configs mode: ")
+		logrus.Infoln("Using multiple configs mode: ")
 		for _, v := range config.ConfigFile {
 			returnVal = append(returnVal, UsingYaml(v, taskName)...)
 		}
 	} else if config.ConfigType == "build-config-remote" {
-		logrus.Info("Using remote config mode: ")
-		_, err = os.Stat("git")
+		logrus.Infoln("Using remote config mode: ")
+		_, err = exec.LookPath("git")
 		if err != nil {
-			logrus.Error("Error checking for git: 请先安装git工具", err)
+			logrus.Errorln("Error checking for git - 请先安装git工具: ", err)
 			return nil
 		}
 		config2 := config
 		var url []string // github.com/aenjoy/BuilderX host/username/project
 		url = strings.Split(config2.BaseConfig.RemoteConfig.RemoteStore, "/")
-		debugTools.PrintLogsOnlyInDebugMode("解析的URL:", url)
+		debugTools.PrintlnOnlyInDebugMode("解析的URL:", url)
 		if len(url) == 3 {
-			logrus.Info("拉取远程仓库. ", "使用方法:", config2.BaseConfig.RemoteConfig.RemoteCloneWay)
+			logrus.Info("拉取远程仓库: ", config2.BaseConfig.RemoteConfig.RemoteStore, " 使用方法:", config2.BaseConfig.RemoteConfig.RemoteCloneWay)
+			err = os.Chdir(config2.BaseConfig.RemoteConfig.LocalStoreTemp)
+			if err != nil {
+				//config2.BaseConfig.RemoteConfig.LocalStoreTemp = "./project/"
+				//config2.BaseConfig.InputFile = "./project/" + url[2]
+				os.Chdir("./project")
+			}
+			config2.BaseConfig.InputFile = ""
 			if config2.BaseConfig.RemoteConfig.RemoteCloneWay == "https" {
-				<-iotools.GetOutputContinually("git", "clone", "https://"+url[0]+"/"+url[1]+"/"+url[2])
+				iotools.GetOutputContinually2("git", "clone", "https://"+url[0]+"/"+url[1]+"/"+url[2])
 			} else if config2.BaseConfig.RemoteConfig.RemoteCloneWay == "ssh" {
 				s := "ssh://git@ssh." + url[0] + ":443/" + url[1] + "/" + url[2]
-				<-iotools.GetOutputContinually("git", "clone", s)
+				iotools.GetOutputContinually2("git", "clone", s)
 			} else if config2.BaseConfig.RemoteConfig.RemoteCloneWay == "git" {
 				s := "git@" + url[0] + ":" + url[1] + "/" + url[2]
-				<-iotools.GetOutputContinually("git", "clone", s)
+				iotools.GetOutputContinually2("git", "clone", s)
 			}
-			config2.BaseConfig.InputFile = config2.BaseConfig.RemoteConfig.LocalStoreTemp + url[2] + "/."
+			os.Chdir(url[2])
+			debugTools.PrintlnOnlyInDebugMode("Debug:config2.BaseConfig.InputFile:", config2.BaseConfig.InputFile)
 			var task Task
 			task.CreatTime = time.Now()
 			global.BuildedTask++
-			task.Config = localParse(config2)
+			task.Config = yamlConfig2BuildConfig(config2)
+			task.Config.OutputFile = "./bin/"
+			task.Config.outName = url[2]
 			task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuildedTask) + taskName)
 			returnVal = append(returnVal, task)
 		} else {
-			logrus.Error("Error with remote config")
+			logrus.Error("Error with remote config fmt.")
 			return nil
 		}
 	} else if config.ConfigType == "build-config-local" {
-		logrus.Info("Using local config mode: ")
+		logrus.Infoln("Using local config mode: ")
 		var task Task
 		task.CreatTime = time.Now()
 		global.BuildedTask++
 		task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuildedTask) + taskName)
-		task.Config = localParse(config)
+		task.Config = yamlConfig2BuildConfig(config)
 		returnVal = append(returnVal, task)
 		// todo
 	}
-	logrus.Info("Config parsed successfully. ", f)
+	logrus.Infoln("Config parsed successfully. ", f)
 	return returnVal
 }
-func localParse(config yamlConfig) BuildConfig {
+
+// yamlConfig2BuildConfig
+// yamlConfig to BuildConfig
+func yamlConfig2BuildConfig(config yamlConfig) BuildConfig {
 	var returnVal BuildConfig
 	for _, v := range config.BaseConfig.VarFlags {
 		var varFlag VarFlag
 		a := strings.Split(v, "=")
 		if len(a) == 2 {
 			varFlag.Key = a[0]
-			varFlag.Value = a[1]
+			if iotools.IsStrAInStrB("{", a[1]) && iotools.IsStrAInStrB("}", a[1]) {
+
+			} else {
+				varFlag.Value = a[1]
+			}
 		} else {
 			continue
 		}
@@ -172,11 +202,8 @@ func localParse(config yamlConfig) BuildConfig {
 	}
 	return returnVal
 }
-func ExportDefaultConfig(f string) {
-	i := yamlConfig{
-		ConfigType: "build-config-local",
-	}
 
+func ExportDefaultConfigYaml(f string) {
 	file, err := os.Create(f)
 	if err != nil {
 		fmt.Println("Error creating file:", err)
@@ -184,10 +211,50 @@ func ExportDefaultConfig(f string) {
 	}
 	defer file.Close()
 	encoder := yaml.NewEncoder(file)
-	err = encoder.Encode(&i)
+	err = encoder.Encode(&defaultConfig)
 	if err != nil {
-		fmt.Println("Error encoding YAML:", err)
+		logrus.Errorln("Error encoding YAML:", err)
 		return
 	}
-	fmt.Println("YAML data saved to ", f)
+	logrus.Infoln("YAML data saved to ", f)
+}
+
+func loadConfigYaml(f string) yamlConfig {
+	file, err := os.Open(f)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+	}
+	defer file.Close()
+	decoder := yaml.NewDecoder(file)
+	err = decoder.Decode(&defaultConfig)
+	return defaultConfig
+}
+
+func LoadDefault() {
+	logrus.Infoln("Loading default config:")
+	_, err := os.Stat("config.yaml")
+	if err != nil {
+		_, err = os.Stat("/etc/BuilderX/config.yaml")
+		if err == nil {
+			defaultConfig = loadConfigYaml("/etc/BuilderX/config.yaml")
+			logrus.Infoln("Loaded config from /etc/BuilderX/config.yaml")
+			return
+		}
+	} else {
+		defaultConfig = loadConfigYaml("config.yaml")
+		logrus.Infoln("Loaded config from config.yaml")
+		return
+	}
+	logrus.Warningln("No config file found, using built-in-default config.")
+}
+
+func init() {
+	os.Mkdir("project", 0750)
+	var d = yamlConfig{}.BaseConfig
+	d.RemoteConfig.LocalStoreTemp = "./project"
+	defaultConfig.BaseConfig = d
+}
+
+func EnableCGO() {
+	defaultConfig.BaseConfig.Cgo = true
 }
