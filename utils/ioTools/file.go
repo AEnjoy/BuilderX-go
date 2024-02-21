@@ -1,10 +1,11 @@
-package iotools
+package ioTools
 
 import (
 	"bufio"
 	"github.com/sirupsen/logrus"
 	"io"
 	"os"
+	"path/filepath"
 )
 
 //export  FileReadAll
@@ -23,4 +24,9 @@ func FileReadAll(filename string) string {
 	}
 	logrus.Info("FileReadAll:", str)
 	return str
+}
+
+func GetFileDir(filePath string) string {
+	dir, _ := filepath.Split(filePath)
+	return dir
 }

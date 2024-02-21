@@ -3,7 +3,7 @@ package builder
 import (
 	"BuilderX/global"
 	"BuilderX/utils/debugTools"
-	"BuilderX/utils/iotools"
+	"BuilderX/utils/ioTools"
 	"bufio"
 	"os"
 	"os/exec"
@@ -34,8 +34,42 @@ type BuildArch struct {
 	GOARCH string
 }
 
+func isGoFile(fileName string) bool {
+	var retval1 = func() bool { return strings.HasSuffix(fileName, ".go") }
+	var retval2 = func() bool {
+		var retval string
+		file, err := os.Open("go.mod")
+		if err == nil {
+			defer file.Close()
+			r := bufio.NewReader(file)
+			l, _, _ := r.ReadLine()
+			retval = strings.Replace(string(l), "package", "", 1)
+		}
+		if retval != "" {
+			return true
+		}
+		return false
+	}
+	return retval1() && retval2()
+}
+
 func getNowArch() BuildArch {
 	return BuildArch{GOOS: runtime.GOOS, GOARCH: runtime.GOARCH}
+}
+
+func getGoPackageName() (string, error) {
+	var retval string
+	file, err := os.Open("go.mod")
+	if err == nil {
+		defer file.Close()
+		r := bufio.NewReader(file)
+		l, _, _ := r.ReadLine()
+		retval = strings.Replace(string(l), "module", "", 1)
+	} else {
+		logrus.Errorln("go.mod file not found in current directory.")
+		return "", err
+	}
+	return retval, nil
 }
 
 // BuildConfig
@@ -44,7 +78,7 @@ func getNowArch() BuildArch {
 type BuildConfig struct {
 	InputFile  string    //单个文件名或路径
 	OutputFile string    //输出文件名或路径
-	outName    string    //命令提示中输出的文件名
+	outName    string    //命令提示中输出的文件名(程序包名)
 	Ldflags    []string  //传递给链接参数的值
 	VarFlags   []VarFlag //传递给main.go 中属性参数的值
 	V          bool      // -v 打印编译的包名和文件名
@@ -99,21 +133,49 @@ func (c *BuildConfig) ParseConfig() bool {
 	}
 	if c.InputFile != "" && c.InputFile != "." {
 		//文件判断
-		_, err = os.Stat(c.InputFile)
-		if err != nil {
-			logrus.Errorln("未找到输入包（文件），请检查输入文件（包）路径是否正确.", err)
+		f, err := os.Stat(c.InputFile)
+		if err != nil { //不是目录或文件 (但还有可能是包名,待验证)
+			logrus.Errorln("未找到输入包（文件），请检查输入的项目文件（包）路径是否正确.", err)
 			t, _ := os.Getwd()
-			logrus.Infoln("输入包信息:", c.InputFile, "当前路径：", t)
+			logrus.Infoln("E:当前输入的包信息:", c.InputFile, "当前路径：", t)
 			c.command2 = make([]string, 0)
 			return false
+			// todo 如果是包名,还需判断
 		}
-		// todo 包名判断
+		//目录或文件判断
+		if f.IsDir() {
+			os.Chdir(c.InputFile)
+			c.outName, err = getGoPackageName()
+			if err != nil {
+				os.Chdir(global.RootDir)
+				return false
+			}
+		} else {
+			//go.mod or main.go
+			if ioTools.IsStrAInStrB("go.mod", c.InputFile) {
+				dir := ioTools.GetFileDir("go.mod")
+				err = os.Chdir(dir)
+				if err != nil {
+					logrus.Errorln("未找到输入包（文件），请检查输入的项目文件（包）路径是否正确.", err)
+					return false
+				}
+				c.outName, err = getGoPackageName()
+				if err != nil {
+					logrus.Errorln("不是有效的go项目，请检查输入的项目文件（包）路径是否正确.")
+					os.Chdir(global.RootDir)
+					return false
+				}
+				c.InputFile = "." //
+			} else if !isGoFile(c.InputFile) {
+				logrus.Error("输入文件格式错误，请检查输入的项目文件（包）路径是否正确.")
+				return false
+			}
+		}
 	} else {
-		file, _ := os.Open("go.mod")
-		defer file.Close()
-		r := bufio.NewReader(file)
-		l, _, _ := r.ReadLine()
-		c.outName = strings.Replace(string(l), "module", "", 1)
+		c.outName, err = getGoPackageName()
+		if err != nil {
+			return false
+		}
 	}
 	if c.OutputFile != "" {
 		logrus.Infoln("输出文件路径为:", c.OutputFile)
@@ -168,7 +230,7 @@ func (c *BuildConfig) ParseConfig() bool {
 		c.command2 = append(c.command2, "-modcacherw")
 	}
 	if c.BuildMode != "" {
-		if iotools.IsStrAInStrB(c.BuildMode, global.BuildModeSupported) {
+		if ioTools.IsStrAInStrB(c.BuildMode, global.BuildModeSupported) {
 			c.command += "-buildmode " + c.BuildMode + " "
 			c.command2 = append(c.command2, "-buildmode", c.BuildMode)
 		} else {
@@ -178,7 +240,7 @@ func (c *BuildConfig) ParseConfig() bool {
 		}
 	}
 	if c.BuildVcs != "" {
-		if iotools.IsStrAInStrB(c.BuildVcs, global.BuildVcsSupported) {
+		if ioTools.IsStrAInStrB(c.BuildVcs, global.BuildVcsSupported) {
 			c.command += "-buildvcs " + c.BuildVcs + " "
 			c.command2 = append(c.command2, "-buildvcs", c.BuildVcs)
 		} else {
@@ -186,7 +248,7 @@ func (c *BuildConfig) ParseConfig() bool {
 		}
 	}
 	if c.Compiler != "" {
-		if iotools.IsStrAInStrB(c.Compiler, global.CompileSupported) {
+		if ioTools.IsStrAInStrB(c.Compiler, global.CompileSupported) {
 			c.command += "-compiler " + c.Compiler + " "
 			c.command2 = append(c.command2, "-compiler", c.Compiler)
 		} else {
@@ -198,7 +260,7 @@ func (c *BuildConfig) ParseConfig() bool {
 		c.command2 = append(c.command2, "-linkshared", "-buildmode=shared")
 	}
 	if c.Mod != "" {
-		if iotools.IsStrAInStrB(c.Mod, global.ModSupported) {
+		if ioTools.IsStrAInStrB(c.Mod, global.ModSupported) {
 			c.command += "-mod " + c.Mod + " "
 			c.command2 = append(c.command2, "-mod", c.Mod)
 		} else {
@@ -337,7 +399,7 @@ func (c *BuildConfig) Build() bool {
 			for i := 0; i < len(c.command2); i++ {
 				if c.command2[i] == "-o" {
 					flag = true
-					if iotools.IsStrAInStrB("./bin/", c.command2[i+1]) {
+					if ioTools.IsStrAInStrB("./bin/", c.command2[i+1]) {
 						if runtime.GOOS == "windows" {
 							c.command2[i+1] += c.outName + "-" + target.GOOS + "-" + target.GOARCH + ".exe"
 						} else {
@@ -354,9 +416,9 @@ func (c *BuildConfig) Build() bool {
 				}
 			}
 		}
-		iotools.GetOutputContinually2("go", c.command2...)
+		ioTools.GetOutputContinually2("go", c.command2...)
 	}
 	os.Chdir(global.RootDir)
-	//<-iotools.GetOutputContinually("go", "build", c.command)
+	//<-ioTools.GetOutputContinually("go", "build", c.command)
 	return true
 }

@@ -1,4 +1,4 @@
-package iotools
+package ioTools
 
 import (
 	"bufio"

@@ -2,7 +2,7 @@ package global
 
 import (
 	"BuilderX/utils/debugTools"
-	"BuilderX/utils/iotools"
+	"BuilderX/utils/ioTools"
 	"github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
@@ -26,7 +26,7 @@ func init() {
 		logrus.Errorln("未找到golang，请先安装golang")
 		return
 	}
-	GoOSAndGoArchSupported = string(iotools.GetOutputDirectly("go", "tool", "dist", "list"))
+	GoOSAndGoArchSupported = string(ioTools.GetOutputDirectly("go", "tool", "dist", "list"))
 	debugTools.PrintlnOnlyInDebugMode("GoOSAndGoArchSupported:", GoOSAndGoArchSupported)
 	RootDir, _ = os.Getwd()
 }

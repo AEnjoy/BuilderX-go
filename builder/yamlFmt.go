@@ -4,7 +4,7 @@ import (
 	"BuilderX/global"
 	"BuilderX/utils/debugTools"
 	"BuilderX/utils/hashtool"
-	"BuilderX/utils/iotools"
+	"BuilderX/utils/ioTools"
 	"fmt"
 	"os"
 	"os/exec"
@@ -112,13 +112,13 @@ func UsingYaml(f string, taskName string) []Task {
 			}
 			config2.BaseConfig.InputFile = ""
 			if config2.BaseConfig.RemoteConfig.RemoteCloneWay == "https" {
-				iotools.GetOutputContinually2("git", "clone", "https://"+url[0]+"/"+url[1]+"/"+url[2])
+				ioTools.GetOutputContinually2("git", "clone", "https://"+url[0]+"/"+url[1]+"/"+url[2])
 			} else if config2.BaseConfig.RemoteConfig.RemoteCloneWay == "ssh" {
 				s := "ssh://git@ssh." + url[0] + ":443/" + url[1] + "/" + url[2]
-				iotools.GetOutputContinually2("git", "clone", s)
+				ioTools.GetOutputContinually2("git", "clone", s)
 			} else if config2.BaseConfig.RemoteConfig.RemoteCloneWay == "git" {
 				s := "git@" + url[0] + ":" + url[1] + "/" + url[2]
-				iotools.GetOutputContinually2("git", "clone", s)
+				ioTools.GetOutputContinually2("git", "clone", s)
 			}
 			os.Chdir(url[2])
 			debugTools.PrintlnOnlyInDebugMode("Debug:config2.BaseConfig.InputFile:", config2.BaseConfig.InputFile)
@@ -157,7 +157,7 @@ func yamlConfig2BuildConfig(config yamlConfig) BuildConfig {
 		a := strings.Split(v, "=")
 		if len(a) == 2 {
 			varFlag.Key = a[0]
-			if iotools.IsStrAInStrB("{", a[1]) && iotools.IsStrAInStrB("}", a[1]) {
+			if ioTools.IsStrAInStrB("{", a[1]) && ioTools.IsStrAInStrB("}", a[1]) {
 
 			} else {
 				varFlag.Value = a[1]
