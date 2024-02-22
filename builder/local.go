@@ -22,7 +22,7 @@ func UsingLocal(path string) Task {
 			return Task{}
 		}
 	}
-	task.Config = yamlConfig2BuildConfig(defaultConfig)
+	task.Config = yamlConfig2BuildConfig(defaultConfigY)
 	task.CreatTime = time.Now()
 	task.TaskName = "localBuild"
 	task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuildedTask) + task.TaskName)

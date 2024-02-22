@@ -1,11 +1,11 @@
 package builder
 
 import (
+	"fmt"
 	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/aenjoy/BuilderX-go/utils/debugTools"
 	"github.com/aenjoy/BuilderX-go/utils/hashtool"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
-	"fmt"
 	"os"
 	"os/exec"
 	"strconv"
@@ -60,7 +60,7 @@ type yamlConfig struct {
 	} `yaml:"otherFlags"`
 }
 
-var defaultConfig = yamlConfig{
+var defaultConfigY = yamlConfig{
 	ConfigType:          "build-config-local",
 	ConfigApiVersion:    global.ConfigApiVersion,
 	ConfigMinApiVersion: 1,
@@ -150,8 +150,7 @@ func UsingYaml(f string, taskName string) []Task {
 
 // yamlConfig2BuildConfig
 // yamlConfig to BuildConfig
-func yamlConfig2BuildConfig(config yamlConfig) BuildConfig {
-	var returnVal BuildConfig
+func yamlConfig2BuildConfig(config yamlConfig) (returnVal BuildConfig) {
 	for _, v := range config.BaseConfig.VarFlags {
 		var varFlag VarFlag
 		a := strings.Split(v, "=")
@@ -200,7 +199,7 @@ func yamlConfig2BuildConfig(config yamlConfig) BuildConfig {
 			returnVal.Targets = append(returnVal.Targets, BuildArch{GOOS: a[0], GOARCH: a[1]})
 		}
 	}
-	return returnVal
+	return
 }
 
 func ExportDefaultConfigYaml(f string) {
@@ -211,7 +210,7 @@ func ExportDefaultConfigYaml(f string) {
 	}
 	defer file.Close()
 	encoder := yaml.NewEncoder(file)
-	err = encoder.Encode(&defaultConfig)
+	err = encoder.Encode(&defaultConfigY)
 	if err != nil {
 		logrus.Errorln("Error encoding YAML:", err)
 		return
@@ -219,7 +218,7 @@ func ExportDefaultConfigYaml(f string) {
 	logrus.Infoln("YAML data saved to ", f)
 }
 
-func loadConfigYaml(f string) yamlConfig {
+func loadConfigYaml(f string) (defaultConfig yamlConfig) {
 	file, err := os.Open(f)
 	if err != nil {
 		fmt.Println("Error opening file:", err)
@@ -227,21 +226,21 @@ func loadConfigYaml(f string) yamlConfig {
 	defer file.Close()
 	decoder := yaml.NewDecoder(file)
 	err = decoder.Decode(&defaultConfig)
-	return defaultConfig
+	return
 }
 
 func LoadDefault() {
-	logrus.Infoln("Loading default config:")
+	logrus.Infoln("Loading default config:(如果你不想加载默认的文件配置而使用内置配置,请使用--not-load-temple-default选项)")
 	_, err := os.Stat("config.yaml")
 	if err != nil {
 		_, err = os.Stat("/etc/BuilderX/config.yaml")
 		if err == nil {
-			defaultConfig = loadConfigYaml("/etc/BuilderX/config.yaml")
+			defaultConfigY = loadConfigYaml("/etc/BuilderX/config.yaml")
 			logrus.Infoln("Loaded config from /etc/BuilderX/config.yaml")
 			return
 		}
 	} else {
-		defaultConfig = loadConfigYaml("config.yaml")
+		defaultConfigY = loadConfigYaml("config.yaml")
 		logrus.Infoln("Loaded config from config.yaml")
 		return
 	}

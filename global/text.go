@@ -1,7 +1,28 @@
 package global
 
-const Help = `
-
+const Help = `WebServerOption:
+	-p, --port  (default "18088") web Port
+	-w, --web    Start Dashboard
+	参数-w与LocalToolsOption冲突.
+LocalToolsOption:
+	-F, --out-file-name-fmt[="a"] or (default "default")
+	-l, --local [="."]
+	-r, --remote [="github.com/aenjoy/BuilderX-go"]
+		--remote-clone-way [way] way:https,git,ssh。 (default "https")
+	-J, --file-json fileName
+	-Y, --file-yaml fileName
+	-e, --export-conf fileName
+		--export-conf-type yaml or json (default "yaml")
+GlobalOption:
+	--not-running-check
+	--not-load-temple-default
+	-c, --cgo		Enable CGO
+	-d, --debug
+	-g, --go-exe string[="go"]
+------------
+	-h, --help
+	-v, --version
+	指定-h或-v将忽略其它参数
 `
 const BuildMode = `-buildmode=archive
                 将列出的非主程序包构建到.a文件中。名为main的包将被忽略。

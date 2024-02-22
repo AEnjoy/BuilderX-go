@@ -1,10 +1,10 @@
 package builder
 
 import (
+	"bufio"
 	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/aenjoy/BuilderX-go/utils/debugTools"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
-	"bufio"
 	"os"
 	"os/exec"
 	"runtime"
@@ -116,7 +116,7 @@ func (c *BuildConfig) ParseConfig() bool {
 	if c.status { //防止重复处理
 		return true
 	}
-	_, err := exec.LookPath("go")
+	_, err := exec.LookPath(global.GoExe)
 	c.command2 = append(c.command2, "build")
 	if err != nil {
 		logrus.Errorln("未找到go，请先安装golang", err)
@@ -416,7 +416,7 @@ func (c *BuildConfig) Build() bool {
 				}
 			}
 		}
-		ioTools.GetOutputContinually2("go", c.command2...)
+		ioTools.GetOutputContinually2(global.GoExe, c.command2...)
 	}
 	os.Chdir(global.RootDir)
 	//<-ioTools.GetOutputContinually("go", "build", c.command)
@@ -424,13 +424,13 @@ func (c *BuildConfig) Build() bool {
 }
 
 func EnableCGO() {
-	defaultConfig.BaseConfig.Cgo = true
+	defaultConfigY.BaseConfig.Cgo = true
 }
 func init() {
 	os.Mkdir("project", 0750)
 	var d = yamlConfig{}.BaseConfig
 	d.RemoteConfig.LocalStoreTemp = "./project"
-	defaultConfig.BaseConfig = d
+	defaultConfigY.BaseConfig = d
 	var d2 = jsonConfig{}.BaseConfig
 	d2.RemoteConfig.LocalStoreTemp = "./project"
 	defaultConfigJ.BaseConfig = d2

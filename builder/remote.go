@@ -6,7 +6,7 @@ import (
 )
 
 func UsingRemote(url string, types string) []Task {
-	tConfig := defaultConfig
+	tConfig := defaultConfigY
 	tConfig.ConfigType = "build-config-remote"
 	tConfig.BaseConfig.RemoteConfig.RemoteStore = url
 	tConfig.BaseConfig.RemoteConfig.RemoteCloneWay = types

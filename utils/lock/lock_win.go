@@ -19,7 +19,7 @@ func Lock() {
 		locks.WriteString(strconv.Itoa(os.Getpid()))
 		//lock.Close()
 	} else {
-		logrus.Warningln("BuilderXLock存在，尝试取得lock:")
+		logrus.Warningln("BuilderXLock存在，尝试取得lock: 你可以使用--not-running-check忽略重复执行检测")
 		e := os.Remove(lockFile)
 		if e != nil {
 			logrus.Errorln("BuilderX:获取Lock失败")

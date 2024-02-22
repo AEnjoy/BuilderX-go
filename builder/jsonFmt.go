@@ -1,12 +1,12 @@
 package builder
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/aenjoy/BuilderX-go/utils/debugTools"
 	"github.com/aenjoy/BuilderX-go/utils/hashtool"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
-	"encoding/json"
-	"fmt"
 	"github.com/bytedance/sonic"
 	"github.com/sirupsen/logrus"
 	"os"
@@ -66,7 +66,7 @@ var defaultConfigJ = jsonConfig{
 	ConfigMinAPIVersion: 1,
 }
 
-func UsingJson(f string, taskName string) []Task {
+func UsingJson(f string, taskName string) (returnVal []Task) {
 	var config jsonConfig
 	logrus.Infoln("Using JSON: ", f, " parse...")
 	file, err := os.ReadFile(f)
@@ -83,7 +83,6 @@ func UsingJson(f string, taskName string) []Task {
 		logrus.Errorln("The current configuration version supported by BuilderX is too low to load the configuration file, and you should upgrade BuilderX.: SupportVersion:", global.ConfigApiVersion, " ConfigVersion:", config.ConfigMinAPIVersion)
 		return nil
 	}
-	var returnVal []Task
 	if config.ConfigType == "multiple-config" {
 		logrus.Infoln("Using multiple configs mode: ")
 		for _, v := range config.ConfigFile {
@@ -143,10 +142,9 @@ func UsingJson(f string, taskName string) []Task {
 		// todo
 	}
 	logrus.Infoln("Config parsed successfully. ", f)
-	return returnVal
+	return
 }
-func jsonConfig2BuildConfig(config jsonConfig) BuildConfig {
-	var returnVal BuildConfig
+func jsonConfig2BuildConfig(config jsonConfig) (returnVal BuildConfig) {
 	for _, v := range config.BaseConfig.VarFlags {
 		var varFlag VarFlag
 		a := strings.Split(v, "=")
@@ -195,7 +193,7 @@ func jsonConfig2BuildConfig(config jsonConfig) BuildConfig {
 			returnVal.Targets = append(returnVal.Targets, BuildArch{GOOS: a[0], GOARCH: a[1]})
 		}
 	}
-	return returnVal
+	return
 }
 func ExportDefaultConfigJson(f string) {
 	file, err := os.Create(f)
