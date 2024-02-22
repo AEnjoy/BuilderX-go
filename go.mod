@@ -1,4 +1,4 @@
-module BuilderX
+module github.com/aenjoy/BuilderX-go
 
 go 1.21
 

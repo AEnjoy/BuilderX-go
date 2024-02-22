@@ -1,8 +1,8 @@
 package global
 
 import (
-	"BuilderX/utils/debugTools"
-	"BuilderX/utils/ioTools"
+	"github.com/aenjoy/BuilderX-go/utils/debugTools"
+	"github.com/aenjoy/BuilderX-go/utils/ioTools"
 	"github.com/sirupsen/logrus"
 	"os"
 	"os/exec"

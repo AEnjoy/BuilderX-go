@@ -1,9 +1,9 @@
 package builder
 
 import (
-	"BuilderX/global"
-	"BuilderX/utils/debugTools"
-	"BuilderX/utils/ioTools"
+	"github.com/aenjoy/BuilderX-go/global"
+	"github.com/aenjoy/BuilderX-go/utils/debugTools"
+	"github.com/aenjoy/BuilderX-go/utils/ioTools"
 	"bufio"
 	"os"
 	"os/exec"

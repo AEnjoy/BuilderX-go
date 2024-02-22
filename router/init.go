@@ -1,7 +1,7 @@
 package router
 
 import (
-	"BuilderX/global"
+	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 	"net/http"

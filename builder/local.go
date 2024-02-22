@@ -1,9 +1,9 @@
 package builder
 
 import (
-	"BuilderX/global"
-	"BuilderX/utils/debugTools"
-	"BuilderX/utils/hashtool"
+	"github.com/aenjoy/BuilderX-go/global"
+	"github.com/aenjoy/BuilderX-go/utils/debugTools"
+	"github.com/aenjoy/BuilderX-go/utils/hashtool"
 	"github.com/sirupsen/logrus"
 	"os"
 	"strconv"

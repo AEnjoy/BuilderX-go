@@ -1,10 +1,10 @@
 package builder
 
 import (
-	"BuilderX/global"
-	"BuilderX/utils/debugTools"
-	"BuilderX/utils/hashtool"
-	"BuilderX/utils/ioTools"
+	"github.com/aenjoy/BuilderX-go/global"
+	"github.com/aenjoy/BuilderX-go/utils/debugTools"
+	"github.com/aenjoy/BuilderX-go/utils/hashtool"
+	"github.com/aenjoy/BuilderX-go/utils/ioTools"
 	"encoding/json"
 	"fmt"
 	"github.com/bytedance/sonic"
