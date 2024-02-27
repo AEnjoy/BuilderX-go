@@ -57,6 +57,7 @@ func getNowArch() BuildArch {
 	return BuildArch{GOOS: runtime.GOOS, GOARCH: runtime.GOARCH}
 }
 
+// getGoPackageName 获取当前项目go.mod文件中的module值(完整包名)
 func getGoPackageName() (string, error) {
 	var retval string
 	file, err := os.Open("go.mod")
@@ -65,6 +66,7 @@ func getGoPackageName() (string, error) {
 		r := bufio.NewReader(file)
 		l, _, _ := r.ReadLine()
 		retval = strings.Replace(string(l), "module", "", 1)
+		retval = strings.TrimSpace(retval)
 	} else {
 		logrus.Errorln("go.mod file not found in current directory.")
 		return "", err
@@ -72,17 +74,40 @@ func getGoPackageName() (string, error) {
 	return retval, nil
 }
 
+// getGoPackageName2 返回相对路径下的包名
+func getGoPackageName2() (string, error) {
+	var retval string
+	file, err := os.Open("go.mod")
+	if err == nil {
+		defer file.Close()
+		r := bufio.NewReader(file)
+		l, _, _ := r.ReadLine()
+		retval = strings.Replace(string(l), "module", "", 1)
+		retval = strings.TrimSpace(retval)
+	} else {
+		logrus.Errorln("go.mod file not found in current directory.")
+		return "", err
+	}
+	ret := strings.Split(retval, "/")
+	if len(ret)-1 != 0 {
+		retval = ret[len(ret)-1]
+		return retval, nil
+	}
+	return "", nil
+}
+
 // BuildConfig
 //
 //	构建配置 本地项目
 type BuildConfig struct {
-	InputFile  string    //单个文件名或路径
-	OutputFile string    //输出文件名或路径
-	outName    string    //命令提示中输出的文件名(程序包名)
-	Ldflags    []string  //传递给链接参数的值
-	VarFlags   []VarFlag //传递给main.go 中属性参数的值
-	V          bool      // -v 打印编译的包名和文件名
-	Cgo        bool      //enable cgo default false
+	InputFile   string    //单个文件名或路径
+	OutputFile  string    //输出文件名或路径
+	outName     string    //命令提示中输出的文件名(程序包名)
+	packageName string    //相对程序包名(最后包名)
+	Ldflags     []string  //传递给链接参数的值
+	VarFlags    []VarFlag //传递给main.go 中属性参数的值
+	V           bool      // -v 打印编译的包名和文件名
+	Cgo         bool      //enable cgo default false
 	//不常用参数
 	ForceBuildPackage bool     // -a 强制重新生成已更新的包。
 	BuildProcess      int      //-p n 编译线程数
@@ -373,6 +398,7 @@ func (c *BuildConfig) ParseConfig() bool {
 		c.command2 = append(c.command2, command)
 		c.command += `" `
 	}
+	c.packageName, err = getGoPackageName2()
 	debugTools.PrintlnOnlyInDebugMode("Command:", c.command)
 	c.status = true
 	return true
@@ -413,6 +439,12 @@ func (c *BuildConfig) Build() bool {
 					c.command2 = append(c.command2, "-o", c.outName+"-"+target.GOOS+"-"+target.GOARCH+".exe")
 				} else {
 					c.command2 = append(c.command2, "-o", c.outName+"-"+target.GOOS+"-"+target.GOARCH)
+				}
+			}
+			if c.OutputFile == "./bin/" && c.packageName != "" {
+				c.OutputFile += c.packageName
+				if target.GOOS == "windows" {
+					c.OutputFile += ".exe"
 				}
 			}
 		}
