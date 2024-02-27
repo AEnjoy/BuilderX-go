@@ -156,11 +156,7 @@ func yamlConfig2BuildConfig(config yamlConfig) (returnVal BuildConfig) {
 		a := strings.Split(v, "=")
 		if len(a) == 2 {
 			varFlag.Key = a[0]
-			if ioTools.IsStrAInStrB("{", a[1]) && ioTools.IsStrAInStrB("}", a[1]) {
-
-			} else {
-				varFlag.Value = a[1]
-			}
+			varFlag.Value = PaserMacro(a[1])
 		} else {
 			continue
 		}
