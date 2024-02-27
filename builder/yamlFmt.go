@@ -221,7 +221,8 @@ func ExportDefaultConfigYaml(f string) {
 func loadConfigYaml(f string) (defaultConfig yamlConfig) {
 	file, err := os.Open(f)
 	if err != nil {
-		fmt.Println("Error opening file:", err)
+		fmt.Println("Error opening file, using default:", err)
+		return defaultConfigY
 	}
 	defer file.Close()
 	decoder := yaml.NewDecoder(file)
