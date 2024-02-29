@@ -4,17 +4,15 @@
 
 目前在varFlags的value中定义了以下宏指令:
 
-{command "cmd"} 执行cmd命令,并将执行结果作为value的值
+- [x] ${command \`cmd\`} 执行cmd命令,并将执行结果作为value的值
 
-{env "envName"} 获取环境变量envName的值,并将结果作为value的值
+- [x] ${env \`envName\`} 获取环境变量envName的值,并将结果作为value的值
 
-{file "filePath"} 读取filePath文件的内容,并将结果作为value的值
+- [x] ${file \`filePath\`} 读取filePath文件的内容,并将结果作为value的值
+- [ ] ${json "jsonFile"  \`Config\`} 解析jsonFile为json对象,并将Config结果作为value的值
+- [ ] ${yaml "yamlFile"  \`Config\`} 解析yamlFile为yaml对象,并将Config结果作为value的值
+- [x] ${base64 \`base64String\`} 将base64String解码为原始字符串,并将结果作为value的值
 
-{json "jsonString"} 解析jsonString为json对象,并将结果作为value的值
-
-{yaml "yamlString"} 解析yamlString为yaml对象,并将结果作为value的值
-
-{base64 "base64String"} 将base64String解码为原始字符串,并将结果作为value的值
 
 ## 示例:
 
@@ -29,10 +27,17 @@ baseConfig:
     -  "-s"
     -  "-w"
   varFlags:
-    - "main.Version=0.0.1-Dev"
+    - "main.Version=${file `version`}"
     - "main.BuildTime=2024-2-21-18:25:19"
-    - "main.GoVersion=1.21.5"
-    - "main.GitTag={command "git rev-parse --short HEAD"}"
+    - "main.GoVersion=${command `go env GOVERSION`}"
+    - "main.GitTag=${command `git rev-parse --short HEAD`}"
+    - "main.Features=${env `Features`}"
 ```
 
+获取项目根目录下version文件的内容至main.Version
+
+获取系统中go的版本至main.GoVersion
+
 将当前版本库的git  commit id作为main.GitTag的值
+
+获取环境变量中Features作为main.Features的值

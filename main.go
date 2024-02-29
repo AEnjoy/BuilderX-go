@@ -23,6 +23,7 @@ var (
 	GitTag    string
 	GOOS      string
 	GOARCH    string
+	Features  string
 )
 
 // 命令行参数解析
@@ -79,6 +80,7 @@ func main() {
 		println("BuilderX Version:", Version)
 		println("Build Time:", BuildTime)
 		println("Go Version:", GoVersion)
+		println("Features:", Features)
 		println("Go OS/Arch:", GOOS+"/"+GOARCH)
 		println("Git Tag:", GitTag)
 		os.Exit(0)

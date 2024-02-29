@@ -150,7 +150,7 @@ func jsonConfig2BuildConfig(config jsonConfig) (returnVal BuildConfig) {
 		a := strings.Split(v, "=")
 		if len(a) == 2 {
 			varFlag.Key = a[0]
-			varFlag.Value = PaserMacro(a[1])
+			varFlag.Value = ParserMacro(a[1])
 		} else {
 			continue
 		}
