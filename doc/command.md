@@ -25,6 +25,8 @@ BuilderX-go支持在本地使用命令行做任务构建.
 >         -J, --file-json fileName
 > 
 >         -Y, --file-yaml fileName
+>  
+>         -Z, --file-zip  fileName
 > 
 >         -e, --export-conf fileName
 > 
@@ -145,6 +147,10 @@ go run main.go -r="github.com/aenjoy/BuilderX-go"
 解析配置并进行构建.
 
 [具体参考configFile.md](configFile.md)
+
+### -Z, --file-zzip fileName
+
+使用zip包进行构建,zip来自Github或gitlab等直接下载获得
 
 ###  -e, --export-conf fileName
 

@@ -11,6 +11,7 @@ LocalToolsOption:
 		--remote-clone-way [way] way:https,git,ssh。 (default "https")
 	-J, --file-json fileName
 	-Y, --file-yaml fileName
+	-Z, --file-zip  fileName
 	-e, --export-conf fileName
 		--export-conf-type yaml or json (default "yaml")
 GlobalOption:

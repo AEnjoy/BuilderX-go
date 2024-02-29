@@ -61,7 +61,7 @@ type jsonConfig struct {
 }
 
 var defaultConfigJ = jsonConfig{
-	ConfigType:          "build-config-local",
+	ConfigType:          C_Type_Local,
 	ConfigAPIVersion:    global.ConfigApiVersion,
 	ConfigMinAPIVersion: 1,
 }

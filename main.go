@@ -37,6 +37,7 @@ var (
 	remoteCloneWay  string
 	yaml            string
 	json            string
+	zip             string
 	export          string
 	exportType      string
 	notRunningCheck bool
@@ -67,6 +68,7 @@ func init() {
 	flagsetW.StringVar(&remoteCloneWay, "remote-clone-way", "https", "远程项目拉取方式。如果指定了该参数，则 BuilderX将使用该方式克隆远程项目。可选择的方式：https,git,ssh。")
 	flagsetW.StringVarP(&yaml, "file-yaml", "Y", "null", "BuilderX-自动构建配置文件路径。如果指定了该参数，则 BuilderX将使用该文件(.yaml)进行构建。")
 	flagsetW.StringVarP(&json, "file-json", "J", "null", "BuilderX-自动构建配置文件路径。如果指定了该参数，则 BuilderX将使用该文件(.json)进行构建。")
+	flagsetW.StringVarP(&zip, "file-zip", "Z", "null", "BuilderX-自动构建的仓库zip包。如果指定了该参数，则 BuilderX将使用该文件(.zip)进行构建。")
 	flagsetW.StringVarP(&export, "export-conf", "e", "null", "导出一个配置文件示例。")
 	flagsetW.StringVar(&exportType, "export-conf-type", "yaml", "默认使用yaml导出一个配置文件。支持yaml，json。")
 	//pflag.Parse()
@@ -162,6 +164,15 @@ func main() {
 		}
 		for _, t := range task {
 			t.Build()
+		}
+		hasBuildTask = true
+	}
+	if zip != "null" {
+		task := builder.UsingZip(zip, "Build from console.")
+		if task.TaskID != "" {
+			task.Build()
+		} else {
+			logrus.Errorln("No build task found in zip path. Exit.")
 		}
 		hasBuildTask = true
 	}

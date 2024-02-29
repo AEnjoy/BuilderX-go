@@ -7,7 +7,7 @@ import (
 
 func UsingRemote(url string, types string) []Task {
 	tConfig := defaultConfigY
-	tConfig.ConfigType = "build-config-remote"
+	tConfig.ConfigType = C_Type_Remote
 	tConfig.BaseConfig.RemoteConfig.RemoteStore = url
 	tConfig.BaseConfig.RemoteConfig.RemoteCloneWay = types
 	file, _ := os.Create("logs/f")

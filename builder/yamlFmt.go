@@ -16,6 +16,12 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	C_Type_Local  = "build-config-local"
+	C_Type_Remote = "build-config-remote"
+	C_Type_Multi  = "multiple-config"
+)
+
 type yamlConfig struct {
 	ConfigType          string   `yaml:"configType"`
 	ConfigFile          []string `yaml:"configFile"`
@@ -61,7 +67,7 @@ type yamlConfig struct {
 }
 
 var defaultConfigY = yamlConfig{
-	ConfigType:          "build-config-local",
+	ConfigType:          C_Type_Local,
 	ConfigApiVersion:    global.ConfigApiVersion,
 	ConfigMinApiVersion: 1,
 }
@@ -86,12 +92,12 @@ func UsingYaml(f string, taskName string) []Task {
 		return nil
 	}
 	var returnVal []Task
-	if config.ConfigType == "multiple-config" {
+	if config.ConfigType == C_Type_Multi {
 		logrus.Infoln("Using multiple configs mode: ")
 		for _, v := range config.ConfigFile {
 			returnVal = append(returnVal, UsingYaml(v, taskName)...)
 		}
-	} else if config.ConfigType == "build-config-remote" {
+	} else if config.ConfigType == C_Type_Remote {
 		logrus.Infoln("Using remote config mode: ")
 		_, err = exec.LookPath("git")
 		if err != nil {
@@ -134,7 +140,7 @@ func UsingYaml(f string, taskName string) []Task {
 			logrus.Error("Error with remote config fmt.")
 			return nil
 		}
-	} else if config.ConfigType == "build-config-local" {
+	} else if config.ConfigType == C_Type_Local {
 		logrus.Infoln("Using local config mode: ")
 		var task Task
 		task.CreatTime = time.Now()
