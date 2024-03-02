@@ -3,9 +3,11 @@ package builder
 import (
 	"archive/zip"
 	"fmt"
+	"github.com/aenjoy/BuilderX-go/global"
 	"testing"
 )
 
+// zip url: https://github.com/casdoor/casdoor
 func TestZipDir(t *testing.T) {
 	zr, err := zip.OpenReader("test.zip")
 	if err != nil {
@@ -34,4 +36,12 @@ func TestUnzipFile(t *testing.T) {
 			t.Errorf("unzip file error: %s\n", err)
 		}
 	}
+}
+func TestUsingZip(t *testing.T) {
+	global.GoExe = "go"
+	task := UsingZip("test.zip", "test")
+	if task.TaskID == "" {
+		t.Errorf("Error: task id is empty")
+	}
+	task.Build()
 }

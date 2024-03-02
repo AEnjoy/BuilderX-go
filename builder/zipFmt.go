@@ -15,8 +15,6 @@ import (
 )
 
 // Zip格式支持从Github等代码仓库直接下载的zip文件
-// Test is needed. 2024-2-29 23:35:50
-// zip url: https://github.com/casdoor/casdoor
 
 func unzipFile(file *zip.File, dir string) error {
 	// Prevent path traversal vulnerability.
