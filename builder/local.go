@@ -12,6 +12,7 @@ import (
 
 func UsingLocal(path string) Task {
 	var task Task
+	config := defaultConfigY
 	logrus.Infoln("Using local path:", path, " parse ...")
 	if path == "" || path == "." {
 		task.Config.InputFile = "."
@@ -22,7 +23,13 @@ func UsingLocal(path string) Task {
 			return Task{}
 		}
 	}
-	task.Config = yamlConfig2BuildConfig(defaultConfigY)
+	//判断当前路径下有无配置文件,有则加载该配置
+	_, err := os.Stat("builderX.yaml")
+	if err == nil {
+		logrus.Infoln("Using builderX.yaml config.")
+		config = loadConfigYaml("builderX.yaml")
+	}
+	task.Config = yamlConfig2BuildConfig(config)
 	task.CreatTime = time.Now()
 	task.TaskName = "localBuild"
 	task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuildedTask) + task.TaskName)

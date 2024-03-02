@@ -151,6 +151,7 @@ func jsonConfig2BuildConfig(config jsonConfig) (returnVal BuildConfig) {
 		if len(a) == 2 {
 			varFlag.Key = a[0]
 			varFlag.Value = ParserMacro(a[1])
+			returnVal.HaveMacroBeforeCompile = HaveMacroBeforeCompile(a[1])
 		} else {
 			continue
 		}

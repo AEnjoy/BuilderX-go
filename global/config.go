@@ -19,6 +19,8 @@ var RootDir string
 var ConfigApiVersion = 1 // BuilderX-go支持的当前配置文件api版本
 var GoExe string
 
+const MacroSplit = "," //宏指令的分隔符
+
 func init() {
 	StartTime = time.Now()
 	debugTools.StartTime = StartTime

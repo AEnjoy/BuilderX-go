@@ -3,3 +3,5 @@ logs
 data
 /main
 /main.exe
+/builder/test.zip
+bin

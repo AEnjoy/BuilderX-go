@@ -135,6 +135,8 @@ type BuildConfig struct {
 	command  string
 	command2 []string
 	status   bool //true:就绪 false:未就绪
+	//
+	HaveMacroBeforeCompile bool
 }
 
 func (c *BuildConfig) ParseConfig() bool {
@@ -447,6 +449,9 @@ func (c *BuildConfig) Build() bool {
 					c.OutputFile += ".exe"
 				}
 			}
+		}
+		if c.HaveMacroBeforeCompile {
+			//todo 编译前执行命令
 		}
 		ioTools.GetOutputContinually2(global.GoExe, c.command2...)
 	}

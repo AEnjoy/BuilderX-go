@@ -1,0 +1,25 @@
+configType: build-config-local
+configFile: []
+configApiVersion: 1
+configMinApiVersion: 1
+baseConfig :
+    inputFile : "."
+    outputFile : "./bin/"
+    ldflags :
+        -  "-s"
+        -  "-w"
+    varFlags :
+        -  "main.Version=${file,`version`}"
+        -  "main.BuildTime=${date,`2006-01-02--15:04:05`}"
+        -  "main.GoVersion=${command,`go env GOVERSION`}"
+        -  "main.GitTag=${command,`git rev-parse --short HEAD`}"
+        -  "main.Features=NoWeb ${env,`Features`}"
+        -  "main.GOOS=${!env,`GOOS`}"
+        -  "main.GOARCH=${!env,`GOARCH`}"
+    v: true
+    cgo: true
+otherFlags:
+    targets:
+        - "linux/amd64"
+        - "windows/amd64"
+        - "darwin/amd64"

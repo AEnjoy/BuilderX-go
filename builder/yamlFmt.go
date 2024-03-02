@@ -116,6 +116,13 @@ func UsingYaml(f string, taskName string) []Task {
 				//config2.BaseConfig.InputFile = "./project/" + url[2]
 				os.Chdir("./project")
 			}
+			//判断当前路径下有无配置文件,有则加载该配置
+			_, err := os.Stat("builderX.yaml")
+			if err == nil {
+				t := config2.BaseConfig.RemoteConfig.RemoteStore
+				config2 = loadConfigYaml("builderX.yaml")
+				config2.BaseConfig.RemoteConfig.RemoteStore = t
+			}
 			config2.BaseConfig.InputFile = ""
 			if config2.BaseConfig.RemoteConfig.RemoteCloneWay == "https" {
 				ioTools.GetOutputContinually2("git", "clone", "https://"+url[0]+"/"+url[1]+"/"+url[2])
@@ -142,6 +149,11 @@ func UsingYaml(f string, taskName string) []Task {
 		}
 	} else if config.ConfigType == C_Type_Local {
 		logrus.Infoln("Using local config mode: ")
+		//判断当前路径下有无配置文件,有则加载该配置
+		_, err := os.Stat("builderX.yaml")
+		if err == nil {
+			config = loadConfigYaml("builderX.yaml")
+		}
 		var task Task
 		task.CreatTime = time.Now()
 		global.BuildedTask++
@@ -161,8 +173,10 @@ func yamlConfig2BuildConfig(config yamlConfig) (returnVal BuildConfig) {
 		var varFlag VarFlag
 		a := strings.Split(v, "=")
 		if len(a) == 2 {
+			debugTools.PrintlnOnlyInDebugMode("Found varFlag: ", a[0], "=", a[1])
 			varFlag.Key = a[0]
 			varFlag.Value = ParserMacro(a[1])
+			returnVal.HaveMacroBeforeCompile = HaveMacroBeforeCompile(a[1])
 		} else {
 			continue
 		}
