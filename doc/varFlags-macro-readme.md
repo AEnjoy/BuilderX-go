@@ -40,8 +40,6 @@ baseConfig:
     -  "main.GoVersion=${command,`go env GOVERSION`}"
     -  "main.GitTag=${command,`git rev-parse --short HEAD`}"
     -  "main.Features=NoWeb ${env,`Features`}"
-    -  "main.GOOS=${!env,`GOOS`}"
-    -  "main.GOARCH=${!env,`GOARCH`}"
 ```
 
 获取项目根目录下version文件的内容至main.Version

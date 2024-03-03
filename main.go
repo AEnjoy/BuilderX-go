@@ -8,6 +8,7 @@ import (
 	"github.com/aenjoy/BuilderX-go/utils/lock"
 	"os"
 	"os/signal"
+	"runtime"
 	"strconv"
 	"syscall"
 
@@ -83,7 +84,7 @@ func main() {
 		println("Build Time:", BuildTime)
 		println("Go Version:", GoVersion)
 		println("Features:", Features)
-		println("Go OS/Arch:", GOOS+"/"+GOARCH)
+		println("Go OS/Arch:", runtime.GOOS+"/"+runtime.GOARCH)
 		println("Git Tag:", GitTag)
 		os.Exit(0)
 	}
