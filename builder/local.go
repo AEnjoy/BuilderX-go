@@ -26,8 +26,13 @@ func UsingLocal(path string) Task {
 	//判断当前路径下有无配置文件,有则加载该配置
 	_, err := os.Stat("builderX.yaml")
 	if err == nil {
-		logrus.Infoln("Using builderX.yaml config.")
-		config = loadConfigYaml("builderX.yaml")
+		logrus.Infoln("Found builderX.yaml, using config.")
+		//logrus.Infoln("Using builderX.yaml config.")
+		//config = loadConfigYaml("builderX.yaml")
+		t := UsingYaml("builderX.yaml", "localBuild")
+		if len(t) >= 0 {
+			return t[0]
+		}
 	}
 	task.Config = yamlConfig2BuildConfig(config)
 	task.CreatTime = time.Now()

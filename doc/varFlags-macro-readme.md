@@ -6,14 +6,15 @@ Key=Value Value部分支持多条宏指令,单条指令存放在字段 ${ } 中.
 
 ${ } 中的内容会被替换为对应的值,如果${ }中的内容是空的,则不会进行替换,格式为${macro,args...}
 
+在未来,我们将为所有字段都添加宏指令支持,目前仅支持BaseConfig-VarFlags字段.
 
 目前在varFlags的value中定义了以下宏指令:(未打勾的表示还未支持,将在后续版本中支持)
 
 - [x] ${command,\`cmd\`} 执行cmd命令,并将执行结果作为value的值
 - [x] ${env,\`envName\`} 获取环境变量envName的值,并将结果作为value的值
 - [x] ${file,\`filePath\`} 读取filePath文件的内容,并将结果作为value的值
-- [ ] ${json,\`jsonFile\`,\`Config\`} 解析jsonFile为json对象,并将Config结果作为value的值
-- [ ] ${yaml,\`yamlFile\`,\`Config\`} 解析yamlFile为yaml对象,并将Config结果作为value的值
+- [x] ${json,\`jsonFile\`,\`Config\`} 解析jsonFile为json对象,并将Config结果作为value的值
+- [x] ${yaml,\`yamlFile\`,\`Config\`} 解析yamlFile为yaml对象,并将Config结果作为value的值
 - [x] ${base64,\`base64String\`} 将base64String解码为原始字符串,并将结果作为value的值
 - [x] ${date,\`format\`} 获取当前时间,并按照format格式化,并将结果作为value的值 例如:2006-01-02--15:04:05
 

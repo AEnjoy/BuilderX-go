@@ -83,12 +83,12 @@ func UsingJson(f string, taskName string) (returnVal []Task) {
 		logrus.Errorln("The current configuration version supported by BuilderX is too low to load the configuration file, and you should upgrade BuilderX.: SupportVersion:", global.ConfigApiVersion, " ConfigVersion:", config.ConfigMinAPIVersion)
 		return nil
 	}
-	if config.ConfigType == "multiple-config" {
+	if config.ConfigType == C_Type_Multi {
 		logrus.Infoln("Using multiple configs mode: ")
 		for _, v := range config.ConfigFile {
 			returnVal = append(returnVal, UsingJson(v, taskName)...)
 		}
-	} else if config.ConfigType == "build-config-remote" {
+	} else if config.ConfigType == C_Type_Remote {
 		logrus.Infoln("Using remote config mode: ")
 		_, err = exec.LookPath("git")
 		if err != nil {
@@ -131,7 +131,7 @@ func UsingJson(f string, taskName string) (returnVal []Task) {
 			logrus.Error("Error with remote config fmt.")
 			return nil
 		}
-	} else if config.ConfigType == "build-config-local" {
+	} else if config.ConfigType == C_Type_Local {
 		logrus.Infoln("Using local config mode: ")
 		var task Task
 		task.CreatTime = time.Now()

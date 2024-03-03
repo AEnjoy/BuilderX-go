@@ -3,8 +3,12 @@ package builder
 import (
 	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
+	tools "github.com/aenjoy/BuilderX-go/utils/jsonYamlTools"
+	"github.com/bytedance/sonic"
+	"gopkg.in/yaml.v3"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -35,6 +39,7 @@ func TestParserMacro(t *testing.T) {
 		}
 	}
 }
+
 func TestReg(t *testing.T) {
 	input := "这是一个包含\"反单引号\"\\的字符串。(`123` 456)"
 
@@ -126,4 +131,89 @@ func TestHaveMacroBeforeCompileRe(t *testing.T) {
 	matches2 := regex.FindAllString(input2, -1)
 	t.Logf("matches:%v\n", matches)
 	t.Logf("matches2:%v\n", matches2)
+}
+
+func TestGetFieldY(t *testing.T) {
+	str := "${yaml,`../logs/yaml_test.yaml`,`test.name`}"
+	/*
+		test:
+		  name: "John Doe"
+		  dob: "1990-01-01"
+	*/
+	matches := re.FindAllStringSubmatch(str, -1)
+	for _, match := range matches {
+		// match[1] : "指令,`arg1`,`arg2`,..."
+		command := strings.Split(match[1], global.MacroSplit)
+		//instruct := command[0]
+		file := strings.Replace(command[1], "`", "", -1)
+		args := strings.Replace(command[2], "`", "", -1)
+		t.Logf("file=%s,args=%s\n", file, args)
+		var data map[string]interface{}
+		f, err := os.ReadFile(file)
+		if err != nil {
+			t.Error("YamlFile load error:", err)
+			continue
+		}
+		err = yaml.Unmarshal(f, &data)
+		if err != nil {
+			t.Error("YamlFile load error:", err, " Ignore this macro.")
+			continue
+		}
+		value, flag := tools.GetFieldValue(strings.Split(args, "."), data)
+		var v string
+		if flag {
+			switch t1 := value.(type) {
+			case int:
+				v = strconv.Itoa(t1)
+			case string:
+				v = t1
+			default:
+				t.Error("Unsupported type:", t1, " Ignore this macro.")
+				continue
+			}
+		}
+		t.Log("value:", v)
+	}
+}
+
+func TestGetFieldJ(t *testing.T) {
+	str := "${json,`../logs/json_test.json`,`test.name`}"
+	/*
+		{
+		  "test": {
+		    "name": "John Doe",
+		    "dob": "1990-01-01"
+		  }
+		}
+	*/
+	matches := re.FindAllStringSubmatch(str, -1)
+	for _, match := range matches {
+		// match[1] : "指令,`arg1`,`arg2`,..."
+		command := strings.Split(match[1], global.MacroSplit)
+		//instruct := command[0]
+		file := strings.Replace(command[1], "`", "", -1)
+		args := strings.Replace(command[2], "`", "", -1)
+		t.Logf("file=%s,args=%s\n", file, args)
+		f, err := os.ReadFile(file)
+		if err != nil {
+			t.Error("jsonFile load error:", err)
+			continue
+		}
+		var data map[string]interface{}
+		err = sonic.Unmarshal(f, &data)
+		value, flag := tools.GetFieldValue(strings.Split(args, "."), data)
+		var v string
+		if flag {
+			switch t1 := value.(type) {
+			case int:
+				v = strconv.Itoa(t1)
+			case string:
+				v = t1
+			default:
+				t.Error("Unsupported type:", t1, " Ignore this macro.")
+				continue
+			}
+		}
+		t.Log("value:", v)
+	}
 }

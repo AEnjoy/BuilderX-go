@@ -4,9 +4,13 @@ import (
 	"encoding/base64"
 	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
+	tools "github.com/aenjoy/BuilderX-go/utils/jsonYamlTools"
+	"github.com/bytedance/sonic"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -56,12 +60,45 @@ func ParserMacro(str string) (retVal string) {
 			}
 		} else if len(command) == 3 {
 			//instruct is json or yaml
+			file := strings.Replace(command[1], "`", "", -1)
+			args := strings.Replace(command[2], "`", "", -1)
+			f, err := os.ReadFile(file)
+			if err != nil {
+				logrus.Errorln("File load error:", err, " Ignore this macro.")
+				continue
+			}
+			var data map[string]interface{}
 			switch instruct {
 			case "json":
-				//todo
+				err = sonic.Unmarshal(f, &data)
+				if err != nil {
+					logrus.Errorln("jsonFile load error:", err, " Ignore this macro.")
+					continue
+				}
 			case "yaml":
-				//todo
+				err = yaml.Unmarshal(f, &data)
+				if err != nil {
+					logrus.Errorln("YamlFile load error:", err, " Ignore this macro.")
+					continue
+				}
 			}
+			value, flag := tools.GetFieldValue(strings.Split(args, "."), data)
+			var v string
+			if flag {
+				switch t := value.(type) {
+				case int:
+					v = strconv.Itoa(t)
+				case string:
+					v = t
+				default:
+					logrus.Errorln("Unsupported type:", t, " Ignore this macro.")
+					continue
+				}
+			} else {
+				logrus.Errorln("Can't find field:", args, " Ignore this macro.")
+				continue
+			}
+			retVal = strings.Replace(retVal, match[1], v, 1)
 		} else {
 			logrus.Warningf("command[%d] format error: %s. \n", i, match[1])
 			logrus.Infoln("ignore this macro.")
