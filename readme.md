@@ -17,7 +17,7 @@ BuilderX-go 是一个命令行工具，用于构建生成目标为多平台的Go
 
 ## 编译本项目:
 
-在项目目录下运行命令 go run main.go -l
+在项目目录下运行命令 go run main.go var.go -l
 
 程序将输出在./bin下
 
