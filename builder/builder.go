@@ -208,6 +208,11 @@ func (c *BuildConfig) ParseConfig() bool {
 		logrus.Infoln("输出文件路径为:", c.OutputFile)
 		c.command += "-o " + `"` + c.OutputFile + `" `
 		c.command2 = append(c.command2, "-o", c.OutputFile)
+	} else {
+		c.OutputFile = "./"
+		logrus.Infoln("输出文件路径为:", c.OutputFile)
+		c.command += "-o " + `"` + c.OutputFile + `" `
+		c.command2 = append(c.command2, "-o", c.OutputFile)
 	}
 	if c.ForceBuildPackage {
 		c.command += "-a "
@@ -419,41 +424,68 @@ func (c *BuildConfig) Build() bool {
 		c.Targets = append(c.Targets, getNowArch())
 	}
 	for _, target := range c.Targets {
+		tOut := c.OutputFile
 		os.Setenv("GOOS", target.GOOS)
 		os.Setenv("GOARCH", target.GOARCH)
 		logrus.Infoln("编译平台：", target.GOOS, "/", target.GOARCH)
-		if OutFileNameFmt == "a" {
-			var flag = false //有没有-o
-			for i := 0; i < len(c.command2); i++ {
-				if c.command2[i] == "-o" {
-					flag = true
-					if ioTools.IsStrAInStrB("./bin/", c.command2[i+1]) {
-						if runtime.GOOS == "windows" {
-							c.command2[i+1] += c.outName + "-" + target.GOOS + "-" + target.GOARCH + ".exe"
-						} else {
-							c.command2[i+1] += c.outName + "-" + target.GOOS + "-" + target.GOARCH
-						}
-					}
-				}
-			}
-			if !flag {
-				if runtime.GOOS == "windows" {
-					c.command2 = append(c.command2, "-o", c.outName+"-"+target.GOOS+"-"+target.GOARCH+".exe")
-				} else {
-					c.command2 = append(c.command2, "-o", c.outName+"-"+target.GOOS+"-"+target.GOARCH)
-				}
-			}
-			if c.OutputFile == "./bin/" && c.packageName != "" {
-				c.OutputFile += c.packageName
-				if target.GOOS == "windows" {
-					c.OutputFile += ".exe"
-				}
-			}
-		}
 		if c.HaveMacroBeforeCompile {
 			//todo 编译前执行命令
 		}
 		ioTools.GetOutputContinually2(global.GoExe, c.command2...)
+		info, err := os.Stat(tOut)
+		if OutFileNameFmt == "a" {
+			if err == nil {
+				if info.IsDir() {
+					if tOut[len(tOut)-1] != '/' {
+						tOut += "/"
+					}
+					if target.GOOS == "windows" {
+						//windows的程序.exe结尾
+						fileName := tOut + c.packageName + ".exe"
+						//os.Remove(c.OutputFile + c.packageName + "-" + target.GOOS + "-" + target.GOARCH + ".exe")
+						err := os.Rename(fileName, tOut+c.packageName+"-"+target.GOOS+"-"+target.GOARCH+".exe")
+						if err != nil {
+							logrus.Errorln(err)
+						}
+						tOut = tOut + c.packageName + "-" + target.GOOS + "-" + target.GOARCH + ".exe"
+					} else {
+						fileName := tOut + c.packageName
+						//os.Remove(c.OutputFile + c.packageName + "-" + target.GOOS + "-" + target.GOARCH)
+						err := os.Rename(fileName, tOut+c.packageName+"-"+target.GOOS+"-"+target.GOARCH)
+						if err != nil {
+							logrus.Errorln(err)
+						}
+						tOut = tOut + c.packageName + "-" + target.GOOS + "-" + target.GOARCH
+					}
+				} else {
+					//是文件 用户自己指定的,不需要修改
+				}
+			}
+			_, err = os.Stat(tOut)
+			if err != nil {
+				logrus.Errorln("平台:"+target.GOOS, "/", target.GOARCH+"编译失败,找不到编译后的文件:", tOut)
+			} else {
+				logrus.Infoln("平台:"+target.GOOS, "/", target.GOARCH+"编译成功,文件路径:", tOut)
+			}
+		} else {
+			//没有指定-F=a
+			if info.IsDir() {
+				if tOut[len(tOut)-1] != '/' {
+					tOut += "/"
+				}
+				if target.GOOS == "windows" {
+					tOut = tOut + c.packageName + ".exe"
+				} else {
+					tOut = tOut + c.packageName
+				}
+			}
+			_, err = os.Stat(tOut)
+			if err != nil {
+				logrus.Errorln("平台:"+target.GOOS, "/", target.GOARCH+"编译失败,找不到编译后的文件:", tOut)
+			} else {
+				logrus.Infoln("平台:"+target.GOOS, "/", target.GOARCH+"编译成功,文件路径:", tOut)
+			}
+		}
 	}
 	os.Chdir(global.RootDir)
 	//<-ioTools.GetOutputContinually("go", "build", c.command)

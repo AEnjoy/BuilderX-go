@@ -21,7 +21,12 @@ func (t *Task) Build() {
 		logrus.Info("初始化编译配置成功。")
 		debugTools.PrintlnOnlyInDebugMode("编译命令:" + strings.Join(t.Config.command2, " "))
 		if t.Config.Build() {
-			logrus.Info("编译成功。输出:", t.Config.OutputFile, " Package:", t.Config.outName)
+			//_, err := os.Stat(t.Config.OutputFile)
+			//if err != nil {
+			//	logrus.Info("编译失败。")
+			//	return
+			//}
+			//logrus.Info("编译成功。输出:", t.Config.OutputFile)
 		} else {
 			logrus.Info("编译失败。")
 		}
