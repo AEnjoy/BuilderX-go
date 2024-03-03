@@ -13,9 +13,9 @@ baseConfig :
         -  "main.BuildTime=${date,`2006-01-02--15:04:05`}"
         -  "main.GoVersion=${command,`go env GOVERSION`}"
         -  "main.GitTag=${command,`git rev-parse --short HEAD`}"
-        -  "main.Features=NoWeb ${env,`Features`}"
-        -  "main.GOOS=${!env,`GOOS`}"
-        -  "main.GOARCH=${!env,`GOARCH`}"
+        -  "main.Features=NoWeb,CGO_ENABLED=${command,`go env CGO_ENABLED`},${env,`Features`}"
+        -  "main.Platform=${command,`uname -s`}"
+        -  "main.PlatformVersion=${command,`uname -r`}"
     v: true
     cgo: true
 otherFlags:

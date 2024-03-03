@@ -148,10 +148,10 @@ func jsonConfig2BuildConfig(config jsonConfig) (returnVal BuildConfig) {
 	for _, v := range config.BaseConfig.VarFlags {
 		var varFlag VarFlag
 		a := strings.Split(v, "=")
-		if len(a) == 2 {
+		if len(a) >= 2 {
 			varFlag.Key = a[0]
-			varFlag.Value = ParserMacro(a[1])
-			returnVal.HaveMacroBeforeCompile = HaveMacroBeforeCompile(a[1])
+			varFlag.Value = ParserMacro(strings.Join(a[1:], "="))
+			returnVal.HaveMacroBeforeCompile = HaveMacroBeforeCompile(strings.Join(a[1:], "="))
 		} else {
 			continue
 		}

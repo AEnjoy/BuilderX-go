@@ -40,22 +40,21 @@ func ParserMacro(str string) (retVal string) {
 		if len(command) == 2 {
 			args := strings.Replace(strings.Join(command[1:], " "), "`", "", -1) //所有的参数 带空格 如"exec a b c" 或"fileName"
 			commandArgs := strings.Split(args, " ")                              //所有按" "空格分隔的参数 如 exec,a,b,c
-			var value string
 			switch instruct {
 			case "command":
-				value = string(ioTools.GetOutputDirectly(commandArgs[0], commandArgs[1:]...))
+				value := string(ioTools.GetOutputDirectly(commandArgs[0], commandArgs[1:]...))
 				retVal = strings.Replace(retVal, match[1], value, 1)
 			case "env":
-				value = os.Getenv(args)
+				value := os.Getenv(args)
 				retVal = strings.Replace(retVal, match[1], value, 1)
 			case "file":
-				value = ioTools.FileReadAll(args)
+				value := ioTools.FileReadAll(args)
 				retVal = strings.Replace(retVal, match[1], value, 1)
 			case "date":
-				value = time.Now().Format(args)
+				value := time.Now().Format(args)
 				retVal = strings.Replace(retVal, match[1], value, 1)
 			case "base64":
-				value = base64.StdEncoding.EncodeToString([]byte(args))
+				value := base64.StdEncoding.EncodeToString([]byte(args))
 				retVal = strings.Replace(retVal, match[1], value, 1)
 			}
 		} else if len(command) == 3 {
@@ -107,6 +106,7 @@ func ParserMacro(str string) (retVal string) {
 	//在最后,要去掉所有的 "${"和"}"
 	retVal = strings.Replace(retVal, "${", "", -1)
 	retVal = strings.Replace(retVal, "}", "", -1)
+	retVal = strings.Replace(retVal, "\n", "", -1)
 	return
 }
 

@@ -18,11 +18,12 @@ func GetOutputDirectly(name string, args ...string) (output []byte) {
 	cmd := exec.Command(name, args...)
 	output, err := cmd.Output() // 等到命令执行完, 一次性获取输出
 	if err != nil {
-		panic(err)
+		logrus.Errorln(err)
+		return
 	}
 	output, err = simplifiedchinese.GB18030.NewDecoder().Bytes(output)
 	if err != nil {
-		panic(err)
+		logrus.Errorln(err)
 	}
 	return
 }

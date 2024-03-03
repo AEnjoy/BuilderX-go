@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"encoding/base64"
 	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
 	tools "github.com/aenjoy/BuilderX-go/utils/jsonYamlTools"
@@ -15,29 +16,41 @@ import (
 )
 
 func TestParserMacro(t *testing.T) {
-	str := "${command `git version`} and ${env `envName`} "
+	str := "NoWeb,CGO_ENABLED=${command,`go env CGO_ENABLED`}"
 	if !isMacro(str) {
 		return
 	}
 	matches := re.FindAllStringSubmatch(str, -1)
 	for i, match := range matches {
 		t.Logf("Match %d: %s\n", i, match[1])
-		command := strings.Split(match[1], " ")
+		command := strings.Split(match[1], global.MacroSplit)
 		instruct := command[0]
 		args := strings.Replace(strings.Join(command[1:], " "), "`", "", -1)
-		//args = strings.Replace(args, "`", "", 2)
-		command2 := strings.Split(args, " ")
-		t.Logf("instruct:%s, args:%s\n", instruct, args)
-		if instruct == "command" {
-			t.Logf("command\n")
-			t.Logf("%s %s\n", command2[0], command2[1:])
-			t.Logf("%s\n", ioTools.GetOutputDirectly(command2[0], command2[1:]...))
-		}
-		if instruct == "env" {
-			t.Logf("env\n")
-			t.Logf("%s\n", args)
+		commandArgs := strings.Split(args, " ")
+		//t.Logf("instruct:%s, args:%s\n", instruct, args)
+		switch instruct {
+		case "command":
+			value := string(ioTools.GetOutputDirectly(commandArgs[0], commandArgs[1:]...))
+			str = strings.Replace(str, match[1], value, 1)
+		case "env":
+			value := os.Getenv(args)
+			str = strings.Replace(str, match[1], value, 1)
+		case "file":
+			value := ioTools.FileReadAll(args)
+			str = strings.Replace(str, match[1], value, 1)
+		case "date":
+			value := time.Now().Format(args)
+			str = strings.Replace(str, match[1], value, 1)
+		case "base64":
+			value := base64.StdEncoding.EncodeToString([]byte(args))
+			str = strings.Replace(str, match[1], value, 1)
 		}
 	}
+	//在最后,要去掉所有的 "${"和"}"
+	str = strings.Replace(str, "${", "", -1)
+	str = strings.Replace(str, "}", "", -1)
+	str = strings.Replace(str, "\n", "", -1)
+	t.Logf("%s\n", str)
 }
 
 func TestReg(t *testing.T) {
