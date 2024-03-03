@@ -37,8 +37,8 @@ func UsingLocal(path string) Task {
 	task.Config = yamlConfig2BuildConfig(config)
 	task.CreatTime = time.Now()
 	task.TaskName = "localBuild"
-	task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuildedTask) + task.TaskName)
-	global.BuildedTask++
+	task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuiltTask) + task.TaskName)
+	global.BuiltTask++
 	debugTools.PrintlnOnlyInDebugMode("debug:", task.Config.command)
 	//task.Config.Targets = make([]BuildArch, 0)
 	task.Config.Targets = append(task.Config.Targets, getNowArch())

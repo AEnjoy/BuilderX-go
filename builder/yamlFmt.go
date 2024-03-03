@@ -91,6 +91,9 @@ func UsingYaml(f string, taskName string) []Task {
 		logrus.Errorln("The current configuration version supported by BuilderX is too low to load the configuration file, and you should upgrade BuilderX.: SupportVersion:", global.ConfigApiVersion, " ConfigVersion:", config.ConfigMinApiVersion)
 		return nil
 	}
+	if global.ConfigApiVersion < config.ConfigApiVersion {
+		logrus.Warningln("BuilderX does not fully support some directives or fields in the configuration file, this problem is caused by the fact that the api version supported by BuilderX is lower than the api version of the configuration file. You should upgrade your BuilderX to ensure that the configuration file can be fully supported. SupportVersion:", global.ConfigApiVersion, "ConfigVersion:", config.ConfigApiVersion)
+	}
 	var returnVal []Task
 	if config.ConfigType == C_Type_Multi {
 		logrus.Infoln("Using multiple configs mode: ")
@@ -137,11 +140,11 @@ func UsingYaml(f string, taskName string) []Task {
 			debugTools.PrintlnOnlyInDebugMode("Debug:config2.BaseConfig.InputFile:", config2.BaseConfig.InputFile)
 			var task Task
 			task.CreatTime = time.Now()
-			global.BuildedTask++
+			global.BuiltTask++
 			task.Config = yamlConfig2BuildConfig(config2)
 			task.Config.OutputFile = "./bin/"
 			task.Config.outName = url[2]
-			task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuildedTask) + taskName)
+			task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuiltTask) + taskName)
 			returnVal = append(returnVal, task)
 		} else {
 			logrus.Error("Error with remote config fmt.")
@@ -156,8 +159,8 @@ func UsingYaml(f string, taskName string) []Task {
 		}
 		var task Task
 		task.CreatTime = time.Now()
-		global.BuildedTask++
-		task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuildedTask) + taskName)
+		global.BuiltTask++
+		task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuiltTask) + taskName)
 		task.Config = yamlConfig2BuildConfig(config)
 		returnVal = append(returnVal, task)
 		// todo

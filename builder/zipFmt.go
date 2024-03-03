@@ -83,10 +83,10 @@ func UsingZip(f string, taskName string) (task Task) {
 	//todo
 	tConfig.BaseConfig.InputFile = ""
 	task.CreatTime = time.Now()
-	global.BuildedTask++
+	global.BuiltTask++
 	task.Config = yamlConfig2BuildConfig(tConfig)
 	task.Config.OutputFile = "./bin/"
 	task.Config.outName = packName
-	task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuildedTask) + taskName)
+	task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuiltTask) + taskName)
 	return
 }

@@ -47,3 +47,19 @@ otherFlags:
     - "linux/amd64"
     - "windows/amd64"
     - "darwin/amd64"
+before:
+  command:
+    - "go mod tidy -v"
+checksum:
+  file: "checksums.txt"
+archives:
+  enable: true
+  name: "builderX-${targets `os`}-${targets `arch`}"
+  format: zip
+  files:
+      - "readme.md"
+      - "LICENSE"
+      - "./doc/"
+after:
+  command:
+    -

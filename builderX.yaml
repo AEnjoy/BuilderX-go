@@ -1,6 +1,6 @@
 configType: build-config-local
 configFile: []
-configApiVersion: 1
+configApiVersion: 2
 configMinApiVersion: 1
 baseConfig :
     inputFile : "."
@@ -20,6 +20,12 @@ baseConfig :
     cgo: true
 otherFlags:
     targets:
-        - "linux/amd64"
+        - "windows/386"
         - "windows/amd64"
+        - "windows/arm64"
+        - "linux/386"
+        - "linux/arm"
+        - "linux/arm64"
+        - "linux/amd64"
         - "darwin/amd64"
+        - "darwin/arm64"

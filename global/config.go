@@ -14,9 +14,10 @@ import (
 var Router *gin.Engine
 var WebPort = "18088"
 var StartTime time.Time
-var BuildedTask = 0
+var BuiltTask = 0
 var RootDir string
-var ConfigApiVersion = 1 // BuilderX-go支持的当前配置文件api版本
+
+const ConfigApiVersion = 2 // BuilderX-go支持的当前配置文件api版本
 var GoExe string
 
 const MacroSplit = "," //宏指令的分隔符

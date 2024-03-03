@@ -1,40 +1,24 @@
 configType: build-config-local
+configFile: []
 configApiVersion: 1
 configMinApiVersion: 1
-baseConfig:
-  inputFile: "."
-  outputFile: ""
-  ldflags:
+baseConfig :
+  inputFile : "."
+  outputFile : "./bin/"
+  ldflags :
     -  "-s"
     -  "-w"
-  varFlags:
-    - "main.Version=0.0.1-Dev"
-    - "main.BuildTime=2024-2-21-18:25:19"
-    - "main.GoVersion=1.21.5"
+  varFlags :
+    -  "main.Version=${file,`version`}"
+    -  "main.BuildTime=${date,`2006-01-02--15:04:05`}"
+    -  "main.GoVersion=${command,`go env GOVERSION`}"
+    -  "main.GitTag=${command,`git rev-parse --short HEAD`}"
+    -  "main.Features=NoWeb,CGO_ENABLED=${command,`go env CGO_ENABLED`},${env,`Features`}"
+    -  "main.Platform=${command,`uname -s`}"
+    -  "main.PlatformVersion=${command,`uname -r`}"
   v: true
   cgo: true
 otherFlags:
-  forceBuildPackage: false
-  buildProcess:
-  race:
-  msan:
-  cover:
-  coverMode:
-  work:
-  asmFlags: []
-  buildMode:
-  buildVcs: auto
-  compiler:
-  gccgoflags:
-  gcflags: []
-  linkshared:
-  mod:
-  modcacherw:
-  modfile:
-  overlay:
-  pgo:
-  pkgdir:
-  tags:
   targets:
     - "linux/amd64"
     - "windows/amd64"
