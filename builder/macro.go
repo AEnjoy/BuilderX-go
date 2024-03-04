@@ -26,7 +26,7 @@ func isMacro(str string) bool {
 	}
 }
 
-func ParserMacro(str string) (retVal string) {
+func (m *Macro) ParserMacro(str string) (retVal string) {
 	retVal = str
 	//该字段是否存在一条或多条宏指令
 	if !isMacro(str) {
@@ -114,4 +114,30 @@ func HaveMacroBeforeCompile(str string) bool {
 	regex := regexp.MustCompile("\\${!([^}]+)}")
 	matches := regex.FindAllString(str, -1)
 	return len(matches) != 0
+}
+
+type Macro struct {
+	defineContext map[string]string
+	init          bool
+}
+
+func (m *Macro) SetDefineContext(str []string) {
+	if !m.init {
+		m.defineContext = make(map[string]string)
+	}
+
+	for _, s := range str {
+		v := strings.Split(s, "=")
+		if len(v) >= 2 {
+			m.defineContext[v[0]] = m.ParserMacro(strings.Join(v[1:], "="))
+		} else if m.isDefineMacro(s) {
+			// todo
+		}
+	}
+	m.init = true
+}
+
+func (m *Macro) isDefineMacro(str string) bool {
+	// todo 如果是define宏,则返回true
+	return false
 }

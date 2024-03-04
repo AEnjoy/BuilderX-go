@@ -2,6 +2,10 @@ configType: build-config-local
 configFile: []
 configApiVersion: 2
 configMinApiVersion: 1
+name: "${define `name`}"
+define:
+    -  "version=${file,`version`}"
+    -  "name=BuilderX-Go"
 baseConfig :
     inputFile : "."
     outputFile : "./bin/"

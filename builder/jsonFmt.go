@@ -58,6 +58,23 @@ type jsonConfig struct {
 		Targets           []string `json:"targets"`
 		Work              bool     `json:"work"`
 	} `json:"otherFlags"`
+	Before struct {
+		Command []string `json:"command"`
+	} `json:"before"`
+	Checksum struct {
+		File string `json:"file"`
+	} `json:"checksum"`
+	Archives struct {
+		Enable bool     `json:"enable"`
+		Name   string   `json:"name"`
+		Format string   `json:"format"`
+		Files  []string `json:"files"`
+	} `json:"archives"`
+	After struct {
+		Command []string `json:"command"`
+	} `json:"after"`
+	ProjectName string   `json:"name"`
+	Define      []string `json:"define"`
 }
 
 var defaultConfigJ = jsonConfig{
@@ -128,6 +145,9 @@ func UsingJson(f string, taskName string) (returnVal []Task) {
 			task.Config = jsonConfig2BuildConfig(config2)
 			task.Config.OutputFile = "./bin/"
 			task.Config.outName = url[2]
+			if taskName == "" {
+				taskName = config2.ProjectName
+			}
 			task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuiltTask) + taskName)
 			returnVal = append(returnVal, task)
 		} else {
@@ -139,6 +159,9 @@ func UsingJson(f string, taskName string) (returnVal []Task) {
 		var task Task
 		task.CreatTime = time.Now()
 		global.BuiltTask++
+		if taskName == "" {
+			taskName = config.ProjectName
+		}
 		task.TaskID = hashtool.MD5(task.CreatTime.Format("2006-01-02-15:04:05") + strconv.Itoa(global.BuiltTask) + taskName)
 		task.Config = jsonConfig2BuildConfig(config)
 		returnVal = append(returnVal, task)
@@ -148,23 +171,31 @@ func UsingJson(f string, taskName string) (returnVal []Task) {
 	return
 }
 func jsonConfig2BuildConfig(config jsonConfig) (returnVal BuildConfig) {
+	var tMacro Macro
+	tMacro.SetDefineContext(config.Define)
 	for _, v := range config.BaseConfig.VarFlags {
 		var varFlag VarFlag
 		a := strings.Split(v, "=")
 		if len(a) >= 2 {
-			varFlag.Key = a[0]
-			varFlag.Value = ParserMacro(strings.Join(a[1:], "="))
+			varFlag.Key = tMacro.ParserMacro(a[0])
+			varFlag.Value = tMacro.ParserMacro(strings.Join(a[1:], "="))
 			returnVal.HaveMacroBeforeCompile = HaveMacroBeforeCompile(strings.Join(a[1:], "="))
 		} else {
 			continue
 		}
 		returnVal.VarFlags = append(returnVal.VarFlags, varFlag)
 	}
-	returnVal.Ldflags = config.BaseConfig.Ldflags
+	parserArr := func(str []string) (retVal []string) {
+		for _, s := range str {
+			retVal = append(retVal, tMacro.ParserMacro(s))
+		}
+		return
+	}
+	returnVal.Ldflags = parserArr(config.BaseConfig.Ldflags)
 	returnVal.V = config.BaseConfig.V
 	returnVal.Cgo = config.BaseConfig.Cgo
-	returnVal.InputFile = config.BaseConfig.InputFile
-	returnVal.OutputFile = config.BaseConfig.OutputFile
+	returnVal.InputFile = tMacro.ParserMacro(config.BaseConfig.InputFile)
+	returnVal.OutputFile = tMacro.ParserMacro(config.BaseConfig.OutputFile)
 	returnVal.ForceBuildPackage = config.OtherFlags.ForceBuildPackage
 	returnVal.BuildProcess = config.OtherFlags.BuildProcess
 	returnVal.Race = config.OtherFlags.Race
@@ -177,15 +208,19 @@ func jsonConfig2BuildConfig(config jsonConfig) (returnVal BuildConfig) {
 	} else if config.OtherFlags.CoverMode == "atomic" {
 		returnVal.CoverMode = Atomic
 	}
-	returnVal.Gcflags = config.OtherFlags.Gcflags
+	returnVal.Gcflags = parserArr(config.OtherFlags.Gcflags)
 	returnVal.Linkshared = config.OtherFlags.Linkshared
 	returnVal.Mod = config.OtherFlags.Mod
-	returnVal.Modfile = config.OtherFlags.Modfile
+	returnVal.Modfile = tMacro.ParserMacro(config.OtherFlags.Modfile)
 	returnVal.Modcacherw = config.OtherFlags.Modcacherw
-	returnVal.Overlay = config.OtherFlags.Overlay
-	returnVal.Pgo = config.OtherFlags.Pgo
-	returnVal.Pkgdir = config.OtherFlags.Pkgdir
-	returnVal.Tags = config.OtherFlags.Tags
+	returnVal.Overlay = tMacro.ParserMacro(config.OtherFlags.Overlay)
+	returnVal.Pgo = tMacro.ParserMacro(config.OtherFlags.Pgo)
+	returnVal.Pkgdir = tMacro.ParserMacro(config.OtherFlags.Pkgdir)
+	returnVal.Tags = tMacro.ParserMacro(config.OtherFlags.Tags)
+	returnVal.After = After(config.After)
+	returnVal.Before = Before(config.Before)
+	returnVal.Checksum = Checksum(config.Checksum)
+	returnVal.Archives = Archives(config.Archives)
 	for _, v := range config.OtherFlags.Targets {
 		a := strings.Split(v, "/")
 		if len(a) == 2 {

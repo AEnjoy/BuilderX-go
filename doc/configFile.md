@@ -33,6 +33,18 @@ configApiVersion: 1
 configMinApiVersion: 1
 ```
 
+## define
+
+[]用于定义一些常量,在后续的配置处理过程中可以使用到.
+
+如
+
+```yaml
+define:
+  - "MY_DEFINE_CONSTANT=1"
+  - "MY_DEFINE_CONSTANT2=2"
+  - "version=${file,`version`}" 
+```
 
 
 ## configFile
@@ -50,6 +62,14 @@ configFile:
   - "config2.yaml"
 ```
 
+以下字段支持使用宏
+
+----
+
+
+## name
+
+项目的名字
 
 
 ## before
@@ -94,3 +114,47 @@ checksum:
 ### enable
 
 bool 当值为true时,表示启用打包
+
+### name
+
+文件名 支持使用宏
+
+### format
+
+压缩包的格式.支持 zip,tar,tar.bz2,tar.gz,
+
+### files:
+
+[]额外打包的文件
+
+例子:
+
+```yaml
+archives:
+  enable: true
+  name: "builderX-${targets `os`}-${targets `arch`}"
+  format: "zip"
+  files:
+      - "readme.md"
+      - "LICENSE"
+      - "./doc/"
+```
+
+
+
+## after
+
+在打包后执行的操作
+
+### command
+
+[]执行命令
+
+例子:
+
+```yaml
+after:
+  command:
+    - "echo 编译成功"
+```
+

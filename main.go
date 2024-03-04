@@ -30,6 +30,7 @@ var (
 	export          string
 	exportType      string
 	notRunningCheck bool
+	projectName     string
 )
 
 var flagSet *pflag.FlagSet
@@ -60,6 +61,7 @@ func init() {
 	flagSet.StringVarP(&zip, "file-zip", "Z", "null", "BuilderX-自动构建的仓库zip包。如果指定了该参数，则 BuilderX将使用该文件(.zip)进行构建。")
 	flagSet.StringVarP(&export, "export-conf", "e", "null", "导出一个配置文件示例。")
 	flagSet.StringVar(&exportType, "export-conf-type", "yaml", "默认使用yaml导出一个配置文件。支持yaml，json。")
+	flagSet.StringVarP(&projectName, "project-name", "N", "build from console", "BuilderX-自动构建的项目名。")
 	//pflag.Parse()
 	flagSet.SortFlags = false
 	flagSet.Parse(os.Args[1:])
@@ -130,7 +132,7 @@ func main() {
 		hasBuildTask = true
 	}
 	if yaml != "null" {
-		task := builder.UsingYaml(yaml, "Build from console.")
+		task := builder.UsingYaml(yaml, projectName)
 		if len(task) == 0 {
 			logrus.Errorln("No task found in yaml file. Exit.")
 			//lock.Exit(1, "No task found in yaml file. Exit.")
@@ -141,7 +143,7 @@ func main() {
 		hasBuildTask = true
 	}
 	if json != "null" {
-		task := builder.UsingJson(json, "Build from console.")
+		task := builder.UsingJson(json, projectName)
 		if len(task) == 0 {
 			logrus.Errorln("No task found in json file. Exit.")
 			//lock.Exit(1, "No task found in json file. Exit.")
@@ -152,7 +154,7 @@ func main() {
 		hasBuildTask = true
 	}
 	if zip != "null" {
-		task := builder.UsingZip(zip, "Build from console.")
+		task := builder.UsingZip(zip, projectName)
 		if task.TaskID != "" {
 			task.Build()
 		} else {

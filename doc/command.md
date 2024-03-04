@@ -32,6 +32,8 @@ BuilderX-go支持在本地使用命令行做任务构建.
 > 
 >                 --export-conf-type yaml or json (default "yaml")
 > 
+>         -N, --project-name projectName
+> 
 > GlobalOption:
 > 
 >         --not-running-check
@@ -159,6 +161,10 @@ go run main.go -r="github.com/aenjoy/BuilderX-go"
 ###  --export-conf-type yaml or json (default "yaml")
 
 导出的文件类型,默认为yaml
+
+### -N, --project-name projectName
+
+指定项目名称
 
 ## GlobalOption:
 

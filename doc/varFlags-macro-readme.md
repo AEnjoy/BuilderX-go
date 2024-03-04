@@ -17,10 +17,24 @@ ${ } 中的内容会被替换为对应的值,如果${ }中的内容是空的,则
 - [x] ${yaml,\`yamlFile\`,\`Config\`} 解析yamlFile为yaml对象,并将Config结果作为value的值
 - [x] ${base64,\`base64String\`} 将base64String解码为原始字符串,并将结果作为value的值
 - [x] ${date,\`format\`} 获取当前时间,并按照format格式化,并将结果作为value的值 例如:2006-01-02--15:04:05
-
+- [ ] ${define,\`defineName\`,\`defineValue\`}定义一个defineName,并设置其值为defineValue
+- [ ] ${using,\`defineName\`} 使用一个defineName,并获取其值 支持使用define字段中定义的值
+- 
 ### 其它:
 
 在宏指令前增加"!",表示在编译前执行该宏指令,例如:${!command,\`cmd\`}
+
+你可以在配置文件中使用define字段,来定义一些常量,然后在其它字段中使用${using,defineName}来使用这些常量.
+
+例如:
+
+```yaml
+name: "${define `name`}"
+define:
+  -  "version=${file,`version`}"
+  -  "name=BuilderX-Go"
+```
+
 
 ## 示例:
 

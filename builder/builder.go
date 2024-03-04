@@ -137,6 +137,11 @@ type BuildConfig struct {
 	status   bool //true:就绪 false:未就绪
 	//
 	HaveMacroBeforeCompile bool
+	//
+	Before
+	Checksum
+	Archives
+	After
 }
 
 func (c *BuildConfig) ParseConfig() bool {

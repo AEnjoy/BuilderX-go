@@ -1,6 +1,7 @@
 configType: build-config-remote
 configApiVersion: 1
 configMinApiVersion: 1
+name: my-builderX-config
 baseConfig:
   remoteConfig:
     remoteStore: "github.com/aenjoy/BuilderX"
@@ -55,7 +56,7 @@ checksum:
 archives:
   enable: true
   name: "builderX-${targets `os`}-${targets `arch`}"
-  format: zip
+  format: "zip"
   files:
       - "readme.md"
       - "LICENSE"
