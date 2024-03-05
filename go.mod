@@ -3,7 +3,7 @@ module github.com/aenjoy/BuilderX-go
 go 1.21
 
 require (
-	github.com/bytedance/sonic v1.11.2
+	//github.com/bytedance/sonic v1.11.2
 	github.com/gin-gonic/gin v1.9.1
 	github.com/shirou/gopsutil/v3 v3.24.2
 	github.com/sirupsen/logrus v1.9.3

@@ -2,10 +2,10 @@ package builder
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
 	tools "github.com/aenjoy/BuilderX-go/utils/jsonYamlTools"
-	"github.com/bytedance/sonic"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v3"
 	"os"
@@ -69,7 +69,7 @@ func (m *Macro) ParserMacro(str string) (retVal string) {
 			var data map[string]interface{}
 			switch instruct {
 			case "json":
-				err = sonic.Unmarshal(f, &data)
+				err = json.Unmarshal(f, &data)
 				if err != nil {
 					logrus.Errorln("jsonFile load error:", err, " Ignore this macro.")
 					continue

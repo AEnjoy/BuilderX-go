@@ -7,7 +7,6 @@ import (
 	"github.com/aenjoy/BuilderX-go/utils/debugTools"
 	"github.com/aenjoy/BuilderX-go/utils/hashtool"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
-	"github.com/bytedance/sonic"
 	"github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
@@ -91,7 +90,7 @@ func UsingJson(f string, taskName string) (returnVal []Task) {
 		logrus.Errorln("Error opening file: ", f, err)
 		return nil
 	}
-	err = sonic.Unmarshal(file, &config)
+	err = json.Unmarshal(file, &config)
 	if err != nil {
 		logrus.Errorln("Error decoding JSON:", err)
 		return nil

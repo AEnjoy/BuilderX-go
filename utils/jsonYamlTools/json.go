@@ -1,11 +1,5 @@
 package jsonYamlTools
 
-import (
-	"errors"
-	"github.com/bytedance/sonic"
-	"github.com/bytedance/sonic/ast"
-)
-
 // GetFieldValue 获取嵌套结构体中的值(参数1：字段路径，参数2：解析后的数据)
 func GetFieldValue(path []string, data map[string]interface{}) (interface{}, bool) {
 	if v, ok := data[path[0]]; ok == true {
@@ -20,6 +14,7 @@ func GetFieldValue(path []string, data map[string]interface{}) (interface{}, boo
 	}
 }
 
+/*
 // GetFieldFromJson 获取指定字段的值(参数1：字段路径，参数2：原始json数据)
 func GetFieldFromJson(path []string, value []byte) (string, error) {
 	var temp *ast.Node
@@ -47,3 +42,4 @@ func GetFieldFromJson(path []string, value []byte) (string, error) {
 	}
 	return "", errors.New("path not found")
 }
+*/
