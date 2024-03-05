@@ -32,6 +32,10 @@ func (m *Macro) ParserMacro(str string) (retVal string) {
 	if !isMacro(str) {
 		return
 	}
+	if m.isDefineMacro(str) {
+		retVal = m.ParserDefineMacro(str)
+		return
+	}
 	matches := re.FindAllStringSubmatch(str, -1)
 	for i, match := range matches {
 		// match[1] : "指令,`arg1`,`arg2`,..."
@@ -104,6 +108,7 @@ func (m *Macro) ParserMacro(str string) (retVal string) {
 		}
 	}
 	//在最后,要去掉所有的 "${"和"}"
+	//这里其实有一个bug，如果这条宏不存在,也会被替换掉
 	retVal = strings.Replace(retVal, "${", "", -1)
 	retVal = strings.Replace(retVal, "}", "", -1)
 	retVal = strings.Replace(retVal, "\n", "", -1)
@@ -124,6 +129,7 @@ type Macro struct {
 func (m *Macro) SetDefineContext(str []string) {
 	if !m.init {
 		m.defineContext = make(map[string]string)
+		m.init = true
 	}
 
 	for _, s := range str {
@@ -131,13 +137,51 @@ func (m *Macro) SetDefineContext(str []string) {
 		if len(v) >= 2 {
 			m.defineContext[v[0]] = m.ParserMacro(strings.Join(v[1:], "="))
 		} else if m.isDefineMacro(s) {
-			// todo
+			m.ParserDefineMacro(s)
 		}
 	}
-	m.init = true
 }
 
 func (m *Macro) isDefineMacro(str string) bool {
-	// todo 如果是define宏,则返回true
-	return false
+	var r = regexp.MustCompile("\\${define (.*?)}")
+	matches := r.FindAllStringSubmatch(str, -1)
+	var r2 = regexp.MustCompile("\\${using (.*?)}")
+	matches2 := r2.FindAllStringSubmatch(str, -1)
+	return len(matches) != 0 || len(matches2) != 0
+}
+
+func (m *Macro) ParserDefineMacro(str string) (retVal string) {
+	retVal = str
+	if !m.isDefineMacro(str) {
+		return
+	}
+	if !m.init {
+		m.defineContext = make(map[string]string)
+		m.init = true
+	}
+	matches := re.FindAllStringSubmatch(str, -1)
+	for i, match := range matches {
+		command := strings.Split(match[1], global.MacroSplit)
+		define := strings.Replace(command[1], "`", "", -1)
+		if len(command) == 3 && command[0] == "define" {
+			//Set define
+			value := strings.Replace(command[2], "`", "", -1)
+			m.defineContext[define] = value
+		} else if len(command) == 2 && command[0] == "using" {
+			v, ok := m.defineContext[define]
+			if ok {
+				retVal = strings.Replace(retVal, match[1], v, -1)
+			} else {
+				logrus.Errorln("Define macro not found:", command[0])
+			}
+		} else {
+			logrus.Warningf("command[%d] format error: %s. \n", i, match[1])
+			logrus.Infoln("ignore this macro.")
+		}
+	}
+	//这里其实有一个bug，如果这条宏不存在,也会被替换掉
+	retVal = strings.Replace(retVal, "${", "", -1)
+	retVal = strings.Replace(retVal, "}", "", -1)
+	retVal = strings.Replace(retVal, "\n", "", -1)
+	return
 }

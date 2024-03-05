@@ -22,17 +22,18 @@ ${ } 中的内容会被替换为对应的值,如果${ }中的内容是空的,则
 - 
 ### 其它:
 
-在宏指令前增加"!",表示在编译前执行该宏指令,例如:${!command,\`cmd\`}
+~~在宏指令前增加"!",表示在编译前执行该宏指令,例如:${!command,\`cmd\`}~~
 
 你可以在配置文件中使用define字段,来定义一些常量,然后在其它字段中使用${using,defineName}来使用这些常量.
 
 例如:
 
 ```yaml
-name: "${define `name`}"
+name: "${using `name`}"
 define:
   -  "version=${file,`version`}"
   -  "name=BuilderX-Go"
+  -  "${define,`defineName`,`defineValue`}"
 ```
 
 

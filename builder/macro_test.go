@@ -230,3 +230,23 @@ func TestGetFieldJ(t *testing.T) {
 		t.Log("value:", v)
 	}
 }
+
+func TestDefineMacro(t *testing.T) {
+	input := "${define `test`,`a`} ${define `test2`,`a`}"
+
+	var r = regexp.MustCompile("\\${define (.*?)}")
+
+	matches := r.FindAllStringSubmatch(input, -1)
+
+	for _, match := range matches {
+		t.Logf("Matched string:\"%s\"", match[1])
+	}
+}
+
+func TestIsDefineMacro(t *testing.T) {
+	input := "888 ${define `test`,`a`} 8888"
+	input2 := "gwgwg"
+	var tM Macro
+	t.Log(tM.isDefineMacro(input))
+	t.Log(tM.isDefineMacro(input2))
+}
