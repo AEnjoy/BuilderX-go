@@ -17,7 +17,7 @@ var StartTime time.Time
 var BuiltTask = 0
 var RootDir string
 
-const ConfigApiVersion = 2 // BuilderX-go支持的当前配置文件api版本
+const ConfigApiVersion = 3 // BuilderX-go支持的当前配置文件api版本
 var GoExe string
 
 const MacroSplit = "," //宏指令的分隔符
