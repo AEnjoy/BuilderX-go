@@ -2,10 +2,10 @@ package builder
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
 	tools "github.com/aenjoy/BuilderX-go/utils/jsonYamlTools"
-	"github.com/bytedance/sonic"
 	"gopkg.in/yaml.v3"
 	"os"
 	"regexp"
@@ -213,7 +213,7 @@ func TestGetFieldJ(t *testing.T) {
 			continue
 		}
 		var data map[string]interface{}
-		err = sonic.Unmarshal(f, &data)
+		err = json.Unmarshal(f, &data)
 		value, flag := tools.GetFieldValue(strings.Split(args, "."), data)
 		var v string
 		if flag {
