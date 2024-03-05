@@ -6,6 +6,7 @@ import (
 	"github.com/aenjoy/BuilderX-go/utils/debugTools"
 	"github.com/aenjoy/BuilderX-go/utils/hashtool"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
+	"github.com/aenjoy/BuilderX-go/utils/macro"
 	"os"
 	"os/exec"
 	"strconv"
@@ -185,7 +186,7 @@ func UsingYaml(f string, taskName string) []Task {
 // yamlConfig2BuildConfig
 // yamlConfig to BuildConfig
 func yamlConfig2BuildConfig(config yamlConfig) (returnVal BuildConfig) {
-	var tMacro Macro
+	var tMacro macro.Macro
 	tMacro.SetDefineContext(config.Define)
 	for _, v := range config.BaseConfig.VarFlags {
 		var varFlag VarFlag
@@ -194,7 +195,7 @@ func yamlConfig2BuildConfig(config yamlConfig) (returnVal BuildConfig) {
 			debugTools.PrintlnOnlyInDebugMode("Found varFlag: ", a[0], "=", a[1])
 			varFlag.Key = tMacro.ParserMacro(a[0])
 			varFlag.Value = tMacro.ParserMacro(strings.Join(a[1:], "="))
-			returnVal.HaveMacroBeforeCompile = HaveMacroBeforeCompile(strings.Join(a[1:], "="))
+			returnVal.HaveMacroBeforeCompile = macro.HaveMacroBeforeCompile(strings.Join(a[1:], "="))
 		} else {
 			continue
 		}

@@ -1,4 +1,4 @@
-package builder
+package macro
 
 import (
 	"encoding/base64"
@@ -17,7 +17,7 @@ import (
 
 var re, _ = regexp.Compile(`\${([^}]+)}`)
 
-func isMacro(str string) bool {
+func IsMacro(str string) bool {
 	matches := re.FindAllStringSubmatch(str, -1)
 	if matches == nil {
 		return false
@@ -29,10 +29,10 @@ func isMacro(str string) bool {
 func (m *Macro) ParserMacro(str string) (retVal string) {
 	retVal = str
 	//该字段是否存在一条或多条宏指令
-	if !isMacro(str) {
+	if !IsMacro(str) {
 		return
 	}
-	if m.isDefineMacro(str) {
+	if m.IsDefineMacro(str) {
 		retVal = m.ParserDefineMacro(str)
 		return
 	}
@@ -136,13 +136,13 @@ func (m *Macro) SetDefineContext(str []string) {
 		v := strings.Split(s, "=")
 		if len(v) >= 2 {
 			m.defineContext[v[0]] = m.ParserMacro(strings.Join(v[1:], "="))
-		} else if m.isDefineMacro(s) {
+		} else if m.IsDefineMacro(s) {
 			m.ParserDefineMacro(s)
 		}
 	}
 }
 
-func (m *Macro) isDefineMacro(str string) bool {
+func (m *Macro) IsDefineMacro(str string) bool {
 	var r = regexp.MustCompile("\\${define (.*?)}")
 	matches := r.FindAllStringSubmatch(str, -1)
 	var r2 = regexp.MustCompile("\\${using (.*?)}")
@@ -152,7 +152,7 @@ func (m *Macro) isDefineMacro(str string) bool {
 
 func (m *Macro) ParserDefineMacro(str string) (retVal string) {
 	retVal = str
-	if !m.isDefineMacro(str) {
+	if !m.IsDefineMacro(str) {
 		return
 	}
 	if !m.init {

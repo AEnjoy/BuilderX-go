@@ -7,6 +7,7 @@ import (
 	"github.com/aenjoy/BuilderX-go/utils/debugTools"
 	"github.com/aenjoy/BuilderX-go/utils/hashtool"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
+	"github.com/aenjoy/BuilderX-go/utils/macro"
 	"github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
@@ -170,7 +171,7 @@ func UsingJson(f string, taskName string) (returnVal []Task) {
 	return
 }
 func jsonConfig2BuildConfig(config jsonConfig) (returnVal BuildConfig) {
-	var tMacro Macro
+	var tMacro macro.Macro
 	tMacro.SetDefineContext(config.Define)
 	for _, v := range config.BaseConfig.VarFlags {
 		var varFlag VarFlag
@@ -178,7 +179,7 @@ func jsonConfig2BuildConfig(config jsonConfig) (returnVal BuildConfig) {
 		if len(a) >= 2 {
 			varFlag.Key = tMacro.ParserMacro(a[0])
 			varFlag.Value = tMacro.ParserMacro(strings.Join(a[1:], "="))
-			returnVal.HaveMacroBeforeCompile = HaveMacroBeforeCompile(strings.Join(a[1:], "="))
+			returnVal.HaveMacroBeforeCompile = macro.HaveMacroBeforeCompile(strings.Join(a[1:], "="))
 		} else {
 			continue
 		}

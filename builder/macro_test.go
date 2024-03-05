@@ -6,6 +6,7 @@ import (
 	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
 	tools "github.com/aenjoy/BuilderX-go/utils/jsonYamlTools"
+	"github.com/aenjoy/BuilderX-go/utils/macro"
 	"gopkg.in/yaml.v3"
 	"os"
 	"regexp"
@@ -15,9 +16,11 @@ import (
 	"time"
 )
 
+var re, _ = regexp.Compile(`\${([^}]+)}`)
+
 func TestParserMacro(t *testing.T) {
 	str := "NoWeb,CGO_ENABLED=${command,`go env CGO_ENABLED`}"
-	if !isMacro(str) {
+	if !macro.IsMacro(str) {
 		return
 	}
 	matches := re.FindAllStringSubmatch(str, -1)
@@ -85,7 +88,7 @@ func TestParserMacroF(t *testing.T) {
 			t.Logf("Found varFlag: %s%s%s", a[0], "=", a[1])
 			varFlag.Key = a[0]
 			str := a[1]
-			if !isMacro(str) {
+			if !macro.IsMacro(str) {
 				t.Logf("%s is not macro.\n\n", str)
 				varFlag.Value = str
 				varFlags = append(varFlags, varFlag)
@@ -246,7 +249,7 @@ func TestDefineMacro(t *testing.T) {
 func TestIsDefineMacro(t *testing.T) {
 	input := "888 ${define `test`,`a`} 8888"
 	input2 := "gwgwg"
-	var tM Macro
-	t.Log(tM.isDefineMacro(input))
-	t.Log(tM.isDefineMacro(input2))
+	var tM macro.Macro
+	t.Log(tM.IsDefineMacro(input))
+	t.Log(tM.IsDefineMacro(input2))
 }
