@@ -35,7 +35,11 @@ configMinApiVersion: 1
 
 ## define
 
-[]用于定义一些常量,在后续的配置处理过程中可以使用到.
+[ ]类型:用于定义一些常量,在后续的配置处理过程中可以使用到.
+
+定义在前面的define可以被后面的define覆盖或引用.
+
+格式: 支持key=value 或使用指令 ${define,\`defineName\`,\`defineValue\`}
 
 如
 
@@ -44,6 +48,8 @@ define:
   - "MY_DEFINE_CONSTANT=1"
   - "MY_DEFINE_CONSTANT2=2"
   - "version=${file,`version`}" 
+  - "${define,`defineName`,`defineValue`}" 
+  - "v2=${using,`version`}" 
 ```
 
 
@@ -78,7 +84,7 @@ configFile:
 
 ### command
 
-[]类型,用于执行命令 
+[ ]类型:,用于执行命令 
 
 如
 
@@ -125,7 +131,7 @@ bool 当值为true时,表示启用打包
 
 ### files:
 
-[]额外打包的文件
+[ ]类型:额外打包的文件
 
 例子:
 
@@ -148,7 +154,7 @@ archives:
 
 ### command
 
-[]执行命令
+[ ]类型:执行命令
 
 例子:
 
