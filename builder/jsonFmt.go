@@ -11,6 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -103,6 +104,7 @@ func UsingJson(f string, taskName string) (returnVal []Task) {
 	if global.ConfigApiVersion < config.ConfigAPIVersion {
 		logrus.Warningln("BuilderX does not fully support some directives or fields in the configuration file, this problem is caused by the fact that the api version supported by BuilderX is lower than the api version of the configuration file. You should upgrade your BuilderX to ensure that the configuration file can be fully supported. SupportVersion:", global.ConfigApiVersion, "ConfigVersion:", config.ConfigAPIVersion)
 	}
+	os.Chdir(filepath.Dir(f))
 	if config.ConfigType == C_Type_Multi {
 		logrus.Infoln("Using multiple configs mode: ")
 		for _, v := range config.ConfigFile {
@@ -173,6 +175,7 @@ func UsingJson(f string, taskName string) (returnVal []Task) {
 func jsonConfig2BuildConfig(config jsonConfig) (returnVal BuildConfig) {
 	var tMacro macro.Macro
 	tMacro.SetDefineContext(config.Define)
+	returnVal.MacroContext = tMacro
 	for _, v := range config.BaseConfig.VarFlags {
 		var varFlag VarFlag
 		a := strings.Split(v, "=")

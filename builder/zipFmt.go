@@ -80,6 +80,13 @@ func UsingZip(f string, taskName string) (task Task) {
 		logrus.Errorln("change dir error: ", err)
 		return
 	}
+	_, err = os.Stat("builderX.yaml")
+	if err == nil {
+		t := UsingYaml("builderX.yaml", taskName)
+		if len(t) != 0 {
+			return t[0]
+		}
+	}
 	//todo
 	tConfig.BaseConfig.InputFile = ""
 	task.CreatTime = time.Now()

@@ -9,11 +9,13 @@ LocalToolsOption:
 	-l, --local [="."]
 	-r, --remote [="github.com/aenjoy/BuilderX-go"]
 		--remote-clone-way [way] way:https,git,ssh。 (default "https")
-	-J, --file-json fileName
-	-Y, --file-yaml fileName
-	-Z, --file-zip  fileName
+	-f, --file-auto fileName
+	    --file-json fileName
+	    --file-yaml fileName
+	    --file-zip  fileName
 	-e, --export-conf fileName
 		--export-conf-type yaml or json (default "yaml")
+	-n, --project-name string
 GlobalOption:
 	--not-running-check
 	--not-load-temple-default

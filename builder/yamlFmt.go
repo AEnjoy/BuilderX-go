@@ -9,6 +9,7 @@ import (
 	"github.com/aenjoy/BuilderX-go/utils/macro"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -102,6 +103,7 @@ func UsingYaml(f string, taskName string) []Task {
 	if global.ConfigApiVersion < config.ConfigApiVersion {
 		logrus.Warningln("BuilderX does not fully support some directives or fields in the configuration file, this problem is caused by the fact that the api version supported by BuilderX is lower than the api version of the configuration file. You should upgrade your BuilderX to ensure that the configuration file can be fully supported. SupportVersion:", global.ConfigApiVersion, "ConfigVersion:", config.ConfigApiVersion)
 	}
+	os.Chdir(filepath.Dir(f))
 	var returnVal []Task
 	if config.ConfigType == C_Type_Multi {
 		logrus.Infoln("Using multiple configs mode: ")
@@ -188,6 +190,7 @@ func UsingYaml(f string, taskName string) []Task {
 func yamlConfig2BuildConfig(config yamlConfig) (returnVal BuildConfig) {
 	var tMacro macro.Macro
 	tMacro.SetDefineContext(config.Define)
+	returnVal.MacroContext = tMacro
 	for _, v := range config.BaseConfig.VarFlags {
 		var varFlag VarFlag
 		a := strings.Split(v, "=")

@@ -14,25 +14,27 @@ BuilderX-go支持在本地使用命令行做任务构建.
 > 
 > LocalToolsOption:
 > 
->         -F, --out-file-name-fmt[="a"] or (default "default")
-> 
->         -l, --local [="."]
-> 
->         -r, --remote [="github.com/aenjoy/BuilderX-go"]
-> 
->                 --remote-clone-way [way] way:https,git,ssh。 (default "https")
-> 
->         -J, --file-json fileName
-> 
->         -Y, --file-yaml fileName
->  
->         -Z, --file-zip  fileName
-> 
 >         -e, --export-conf fileName
+>
+>             --export-conf-type yaml or json (default "yaml")
 > 
->                 --export-conf-type yaml or json (default "yaml")
+>         -f, --file-yaml fileName
+>  
+>             --file-json fileName
 > 
->         -N, --project-name projectName
+>             --file-zip  fileName
+>
+>             --out-file-name-fmt[="a"] or (default "default")
+>
+>         -l, --local [="."]
+>
+>         -r, --remote [="github.com/aenjoy/BuilderX-go"]
+>
+>             --remote-clone-way [way] way:https,git,ssh。 (default "https")
+> 
+>         -n, --project-name projectName
+> 
+>         -F, --force
 > 
 > GlobalOption:
 > 
@@ -70,29 +72,29 @@ LocalToolsOption参数组与LocalToolsOption存在冲突,当指定了不同参�
 
 在本地构建项目而不启动web相关的命令组:
 
-### -F, --out-file-name-fmt[="a"]
+###  --out-file-name-fmt[="a"]
 
-本地构建时输出的文件名格式 默认指定为-F default
+本地构建时输出的文件名格式 默认指定为--out-file-name-fmt default
 
-#### 指定-F default 或不指定-F
+#### 指定--out-file-name-fmt default 或不指定--out-file-name-fmt
 
  使用go默认的输出格式:即输出为包名或文件名[.exe]
 
--F=default,--out-file-name-fmt=default 同-F default
+--out-file-name-fmt=default 
 
 例如,当我们在Windows环境下,在builderX根目录下编译程序
 
 使用go  run main.go -l . ,程序将输出在./BuilderX-go.exe
 
-#### 指定-F a
+#### 指定--out-file-name-fmt a
 
--F a 使用内置的模板A作为输出格式: {package-name(dir)}-{os}-{arch}[.exe]
+--out-file-name-fmt a 使用内置的模板"a"作为输出格式: {package-name(dir)}-{os}-{arch}[.exe]
 
---out-file-name-fmt=a和-F a和-F
+--out-file-name-fmt=a 和 --out-file-name-fmt a和 --out-file-name-fmt 等效
 
 例如,当我们在Windows环境下,在builderX根目录下编译程序
 
-使用go  run main.go -l . -F ,程序将输出在./github.com/aenjoy/BuilderX-go-windows-amd64.exe
+使用go run main.go -l . --out-file-name-fmt ,程序将输出在./github.com/aenjoy/BuilderX-go-windows-amd64.exe
 
 ###  -l, --local [="."]
 
@@ -109,6 +111,10 @@ LocalToolsOption参数组与LocalToolsOption存在冲突,当指定了不同参�
 -l=.
 
 -l=~/builderX/main.go
+
+### -F, --force
+
+强制使用命令行中的配置文件构建。如果指定了该参数，则 BuilderX将忽略项目路径下的构建配置文件,而使用命令行的配置文件强制构建.
 
 ###  -r, --remote [="github.com/aenjoy/BuilderX-go"]
 
@@ -136,13 +142,17 @@ go run main.go -r="github.com/aenjoy/BuilderX-go"
 
 默认使用https方式,如果使用git和ssh方式,请先在本地配置授权
 
-###  -J, --file-json fileName
+###  -f, --file-auto fileName
+
+自动识别fileName文件类型并进行构建
+
+###  --file-json fileName
 
 使用fileName json配置进行构建
 
 解析配置并进行构建.
 
-###  -Y, --file-yaml fileName
+###  --file-yaml fileName
 
 使用fileName yaml配置进行构建
 
@@ -150,7 +160,7 @@ go run main.go -r="github.com/aenjoy/BuilderX-go"
 
 [具体参考configFile.md](configFile.md)
 
-### -Z, --file-zzip fileName
+###  --file-zip fileName
 
 使用zip包进行构建,zip来自Github或gitlab等直接下载获得
 
@@ -162,7 +172,7 @@ go run main.go -r="github.com/aenjoy/BuilderX-go"
 
 导出的文件类型,默认为yaml
 
-### -N, --project-name projectName
+### -n, --project-name projectName
 
 指定项目名称
 

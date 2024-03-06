@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"io"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -22,4 +23,22 @@ func TestReadFile(t *testing.T) {
 		}
 	}
 	t.Logf("%s", str)
+}
+func TestChdir(t *testing.T) {
+	getwd, _ := os.Getwd()
+	t.Logf("Before Dir: %s", getwd)
+	file, err := os.Open("../../version")
+	defer file.Close()
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+	err = os.Chdir(filepath.Dir("../../version"))
+	if err != nil {
+		t.Errorf("%s", err)
+	}
+	getwd, _ = os.Getwd()
+	if err != nil {
+		return
+	}
+	t.Logf("Now Dir: %s", getwd)
 }
