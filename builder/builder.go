@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 )
 
 // BuildConfig
@@ -415,11 +416,24 @@ func (c *BuildConfig) Build() bool {
 }
 
 func (c *BuildConfig) parseBefore() bool {
-	//todo
-	return false
+	for _, s := range c.Before.Command {
+		command := strings.Split(s, " ")
+		ioTools.GetOutputDirectly(command[0], command[1:]...)
+	}
+	return true
 }
 
 func (c *BuildConfig) parseAfter() bool {
+	for _, s := range c.After.Command {
+		command := strings.Split(s, " ")
+		ioTools.GetOutputDirectly(command[0], command[1:]...)
+	}
+	return true
+}
+func (c *BuildConfig) parseChecksum(file string) bool {
 	//todo
 	return false
+}
+func (c *BuildConfig) parseArchives() {
+	//todo
 }
