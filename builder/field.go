@@ -4,7 +4,7 @@ type Before struct {
 	Command []string `yaml:"command"`
 }
 type Checksum struct {
-	File string `yaml:"file"`
+	File []string `yaml:"file"`
 }
 type Archives struct {
 	Enable bool     `yaml:"enable"`

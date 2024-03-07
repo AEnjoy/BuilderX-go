@@ -1,11 +1,15 @@
 package builder
 
 import (
+	"archive/tar"
+	"archive/zip"
+	"compress/gzip"
 	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/aenjoy/BuilderX-go/utils/debugTools"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
 	"github.com/aenjoy/BuilderX-go/utils/macro"
 	"github.com/sirupsen/logrus"
+	"io"
 	"os"
 	"os/exec"
 	"strconv"
@@ -430,10 +434,106 @@ func (c *BuildConfig) parseAfter() bool {
 	}
 	return true
 }
-func (c *BuildConfig) parseChecksum(file string) bool {
-	//todo
-	return false
+func (c *BuildConfig) parseChecksum() bool {
+	for _, s := range c.Checksum.File {
+		output := ioTools.GetOutputDirectly("sha256sum", s)
+		err := os.WriteFile(s+".sha256", []byte(output), 0644)
+		if err != nil {
+			logrus.Errorln("生成摘要文件:" + s + ".sha256失败")
+		}
+	}
+	return true
 }
-func (c *BuildConfig) parseArchives() {
-	//todo
+func (c *BuildConfig) parseArchives(outFile, targetFile string) bool {
+	if !c.Archives.Enable {
+		return false
+	}
+	type fileInfo struct {
+		file string
+		path string
+	}
+	var files []fileInfo
+	for _, t := range c.Archives.Files {
+		t = c.MacroContext.ParserMacro(t)
+		t1 := strings.Split(t, ":")
+		//欲添加的文件路径:文件在压缩包中的路径
+		var file, path string
+		switch len(t1) {
+		case 1:
+			file = t1[0]
+			path = t1[0]
+		case 2:
+			file = t1[0]
+			if t1[1] != "" {
+				path = t1[1]
+			} else {
+				path = t1[0]
+			}
+		default:
+			logrus.Errorln("文件路径格式错误,跳过处理该文件")
+			continue
+		}
+		files = append(files, fileInfo{file: file, path: path})
+	}
+	if c.Archives.Format == "zip" {
+		archive, _ := os.Create(outFile)
+		defer archive.Close()
+		zipWriter := zip.NewWriter(archive)
+		defer zipWriter.Close()
+		for _, f := range files {
+			//额外添加文件
+			file, err := os.Open(f.file)
+			if err != nil {
+				logrus.Errorln("打开文件失败:" + f.file)
+				continue
+			}
+			defer file.Close()
+			create, _ := zipWriter.Create(f.path)
+			io.Copy(create, file)
+		}
+		//工程文件
+		file, err := os.Open(targetFile)
+		if err != nil {
+			logrus.Errorln("打开生成文件失败:" + targetFile)
+			return false
+		}
+		defer file.Close()
+		create, _ := zipWriter.Create(targetFile)
+		io.Copy(create, file)
+		return true
+	} else {
+		//tar家族
+		archive, _ := os.Create(outFile)
+		var tw *tar.Writer
+		defer archive.Close()
+		if c.Archives.Format == "tar.gz" {
+			gw := gzip.NewWriter(archive)
+			tw = tar.NewWriter(gw)
+		} else if c.Archives.Format == "tar" {
+			tw = tar.NewWriter(archive)
+		}
+		//todo tar.bzip2
+		defer tw.Close()
+		//工程文件
+		files = append(files, fileInfo{file: targetFile, path: targetFile})
+		for _, f := range files {
+			//额外添加文件
+			file, err := os.Open(f.file)
+			if err != nil {
+				logrus.Errorln("打开文件失败:" + f.file)
+				continue
+			}
+			defer file.Close()
+			info, _ := os.Stat(f.file)
+			header, err := tar.FileInfoHeader(info, "")
+			header.Name = f.path
+			err = tw.WriteHeader(header)
+			if err != nil {
+				logrus.Errorln("写入文件头失败:" + f.file)
+				continue
+			}
+			io.Copy(tw, file)
+		}
+		return true
+	}
 }

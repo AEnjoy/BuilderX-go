@@ -27,6 +27,5 @@ func FileReadAll(filename string) string {
 }
 
 func GetFileDir(filePath string) string {
-	dir, _ := filepath.Split(filePath)
-	return dir
+	return filepath.Dir(filePath)
 }

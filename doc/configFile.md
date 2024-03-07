@@ -102,13 +102,14 @@ before:
 
 ### file
 
-输出的摘要文件名 当file不为空时,checksum启用
+需要生成摘要的文件文件名 当file不为空时,checksum启用
 
 如
 
 ```yaml
 checksum:
-  file: "checksums.txt"
+  file: 
+    - "checksums.txt"
 ```
 
 
@@ -131,7 +132,9 @@ bool 当值为true时,表示启用打包
 
 ### files:
 
-[ ]类型:额外打包的文件
+[ ]类型:额外打包的文件 支持使用宏
+
+格式:欲添加的文件路径:文件在压缩包中的路径(可省略)
 
 例子:
 
@@ -141,9 +144,9 @@ archives:
   name: "builderX-${targets `os`}-${targets `arch`}"
   format: "zip"
   files:
-      - "readme.md"
-      - "LICENSE"
-      - "./doc/"
+      - "./readme.md:README.md"
+      - "./LICENSE:"
+      - "./doc/:doc/"
 ```
 
 

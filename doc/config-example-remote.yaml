@@ -52,7 +52,8 @@ before:
   command:
     - "go mod tidy -v"
 checksum:
-  file: "checksums.txt"
+  file:
+   - "checksums.txt"
 archives:
   enable: true
   name: "builderX-${targets `os`}-${targets `arch`}"
