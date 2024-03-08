@@ -434,6 +434,7 @@ func (c *BuildConfig) parseAfter() bool {
 	}
 	return true
 }
+
 func (c *BuildConfig) parseChecksum() bool {
 	for _, s := range c.Checksum.File {
 		output := ioTools.GetOutputDirectly("sha256sum", s)
@@ -444,7 +445,8 @@ func (c *BuildConfig) parseChecksum() bool {
 	}
 	return true
 }
-func (c *BuildConfig) parseArchives(outFile, targetFile string) bool {
+
+func (c *BuildConfig) parseArchives(outArchivesFile, projectFile, projectFileOutFmt string) bool {
 	if !c.Archives.Enable {
 		return false
 	}
@@ -476,12 +478,36 @@ func (c *BuildConfig) parseArchives(outFile, targetFile string) bool {
 		files = append(files, fileInfo{file: file, path: path})
 	}
 	if c.Archives.Format == "zip" {
-		archive, _ := os.Create(outFile)
+		archive, _ := os.Create(outArchivesFile)
 		defer archive.Close()
 		zipWriter := zip.NewWriter(archive)
 		defer zipWriter.Close()
 		for _, f := range files {
 			//额外添加文件
+			info, err := os.Stat(f.file)
+			if err != nil {
+				logrus.Errorln("打开文件失败:" + f.file)
+				continue
+			}
+			if info.IsDir() {
+				var dir []string
+				dir, _ = ioTools.GetAllFile(f.file, dir)
+				for _, s := range dir {
+					file, err := os.Open(s)
+					if err != nil {
+						logrus.Errorln("打开文件失败:" + s)
+						continue
+					}
+					defer file.Close()
+					t2 := strings.Split(strings.Replace(s, "../", "", -1), "/")
+					t2[0] = f.path
+					//println("TargetFile:", s) "TargetFile: ../doc/command.md"
+					//println("GetTargetDir:", strings.Join(t2, "/")) "GetTargetDir: docs/command.md"
+					create, _ := zipWriter.Create(strings.Join(t2, "/"))
+					io.Copy(create, file)
+				}
+				continue
+			}
 			file, err := os.Open(f.file)
 			if err != nil {
 				logrus.Errorln("打开文件失败:" + f.file)
@@ -492,18 +518,17 @@ func (c *BuildConfig) parseArchives(outFile, targetFile string) bool {
 			io.Copy(create, file)
 		}
 		//工程文件
-		file, err := os.Open(targetFile)
+		file, err := os.Open(projectFile)
 		if err != nil {
-			logrus.Errorln("打开生成文件失败:" + targetFile)
+			logrus.Errorln("打开生成文件失败:" + projectFile)
 			return false
 		}
 		defer file.Close()
-		create, _ := zipWriter.Create(targetFile)
+		create, _ := zipWriter.Create(projectFileOutFmt)
 		io.Copy(create, file)
 		return true
-	} else {
-		//tar家族
-		archive, _ := os.Create(outFile)
+	} else { //tar家族
+		archive, _ := os.Create(outArchivesFile)
 		var tw *tar.Writer
 		defer archive.Close()
 		if c.Archives.Format == "tar.gz" {
@@ -515,16 +540,45 @@ func (c *BuildConfig) parseArchives(outFile, targetFile string) bool {
 		//todo tar.bzip2
 		defer tw.Close()
 		//工程文件
-		files = append(files, fileInfo{file: targetFile, path: targetFile})
+		files = append(files, fileInfo{file: projectFile, path: projectFileOutFmt})
 		for _, f := range files {
 			//额外添加文件
+			info, err := os.Stat(f.file)
+			if err != nil {
+				logrus.Errorln("打开文件失败:" + f.file)
+				continue
+			}
+			if info.IsDir() {
+				var dir []string
+				dir, _ = ioTools.GetAllFile(f.file, dir)
+				for _, s := range dir {
+					file, err := os.Open(s)
+					if err != nil {
+						logrus.Errorln("打开文件失败:" + s)
+						continue
+					}
+					defer file.Close()
+					t2 := strings.Split(strings.Replace(s, "../", "", -1), "/")
+					t2[0] = f.path
+					info, _ = os.Stat(s)
+					header, err := tar.FileInfoHeader(info, "")
+					header.Name = strings.Join(t2, "/")
+					err = tw.WriteHeader(header)
+					if err != nil {
+						logrus.Errorln("写入文件头失败:" + s)
+						continue
+					}
+					io.Copy(tw, file)
+				}
+				continue
+			}
 			file, err := os.Open(f.file)
 			if err != nil {
 				logrus.Errorln("打开文件失败:" + f.file)
 				continue
 			}
 			defer file.Close()
-			info, _ := os.Stat(f.file)
+			info, _ = os.Stat(f.file)
 			header, err := tar.FileInfoHeader(info, "")
 			header.Name = f.path
 			err = tw.WriteHeader(header)

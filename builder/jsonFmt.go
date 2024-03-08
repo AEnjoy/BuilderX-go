@@ -63,7 +63,7 @@ type jsonConfig struct {
 		Command []string `json:"command"`
 	} `json:"before"`
 	Checksum struct {
-		File string `json:"file"`
+		File []string `json:"file"`
 	} `json:"checksum"`
 	Archives struct {
 		Enable bool     `json:"enable"`

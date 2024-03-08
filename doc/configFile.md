@@ -124,17 +124,19 @@ bool 当值为true时,表示启用打包
 
 ### name
 
-文件名 支持使用宏
+输出的压缩包文件名 支持使用宏
 
 ### format
 
-压缩包的格式.支持 zip,tar,tar.bz2,tar.gz,
+压缩包的格式.支持 zip, tar, ~~tar.bz2,~~ tar.gz,
 
 ### files:
 
 [ ]类型:额外打包的文件 支持使用宏
 
 格式:欲添加的文件路径:文件在压缩包中的路径(可省略)
+
+注意:文件路径末尾不能有斜杠. 如: ../doc/:docs是错误的, 应该写成:../doc:docs; ../doc:docs/也是错误的, 应该写成:../doc:docs .
 
 例子:
 
@@ -146,7 +148,7 @@ archives:
   files:
       - "./readme.md:README.md"
       - "./LICENSE:"
-      - "./doc/:doc/"
+      - "./doc:docs"
 ```
 
 

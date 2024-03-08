@@ -45,3 +45,11 @@ func TestUsingZip(t *testing.T) {
 	}
 	task.Build()
 }
+
+func TestBuildConfig_parseArchives(t *testing.T) {
+	var config BuildConfig
+	config.Format = "tar.gz" //zip,tar,tar.gz测试都通过
+	config.Archives.Enable = true
+	config.Archives.Files = []string{"apis.go:", "local.go:local_test_name.go", "../doc:docs", "../res:res", "../readme.md:readme.md"}
+	config.parseArchives("logs/test.tar.gz", "../bin/BuilderX", "bin/BuilderX")
+}
