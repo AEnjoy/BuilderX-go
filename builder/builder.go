@@ -393,6 +393,13 @@ func (c *BuildConfig) Build() bool {
 				logrus.Errorln("平台:"+target.GOOS, "/", target.GOARCH+"编译失败,找不到编译后的文件:", tOut)
 			} else {
 				logrus.Infoln("平台:"+target.GOOS, "/", target.GOARCH+"编译成功,文件路径:", tOut)
+				c.MacroContext.SetDefineContext([]string{"os=" + target.GOOS, "arch=" + target.GOARCH})
+				if target.GOOS == "windows" {
+					c.parseArchives("", tOut, c.packageName+"-"+target.GOOS+"-"+target.GOARCH+".exe")
+				} else {
+					c.parseArchives("", tOut, c.packageName+"-"+target.GOOS+"-"+target.GOARCH)
+				}
+				c.parseChecksum()
 			}
 		} else {
 			//没有指定-F=a
@@ -411,8 +418,16 @@ func (c *BuildConfig) Build() bool {
 				logrus.Errorln("平台:"+target.GOOS, "/", target.GOARCH+"编译失败,找不到编译后的文件:", tOut)
 			} else {
 				logrus.Infoln("平台:"+target.GOOS, "/", target.GOARCH+"编译成功,文件路径:", tOut)
+				c.MacroContext.SetDefineContext([]string{"os=" + target.GOOS, "arch=" + target.GOARCH})
+				if target.GOOS == "windows" {
+					c.parseArchives("", tOut, c.packageName+".exe")
+				} else {
+					c.parseArchives("", tOut, c.packageName)
+				}
+				c.parseChecksum()
 			}
 		}
+		c.parseAfter()
 	}
 	os.Chdir(global.RootDir)
 	//<-ioTools.GetOutputContinually("go", "build", c.command)
@@ -421,6 +436,7 @@ func (c *BuildConfig) Build() bool {
 
 func (c *BuildConfig) parseBefore() bool {
 	for _, s := range c.Before.Command {
+		s = c.MacroContext.ParserMacro(s)
 		command := strings.Split(s, " ")
 		ioTools.GetOutputDirectly(command[0], command[1:]...)
 	}
@@ -429,6 +445,7 @@ func (c *BuildConfig) parseBefore() bool {
 
 func (c *BuildConfig) parseAfter() bool {
 	for _, s := range c.After.Command {
+		s = c.MacroContext.ParserMacro(s)
 		command := strings.Split(s, " ")
 		ioTools.GetOutputDirectly(command[0], command[1:]...)
 	}
@@ -437,6 +454,7 @@ func (c *BuildConfig) parseAfter() bool {
 
 func (c *BuildConfig) parseChecksum() bool {
 	for _, s := range c.Checksum.File {
+		s = c.MacroContext.ParserMacro(s)
 		output := ioTools.GetOutputDirectly("sha256sum", s)
 		err := os.WriteFile(s+".sha256", []byte(output), 0644)
 		if err != nil {
@@ -449,6 +467,9 @@ func (c *BuildConfig) parseChecksum() bool {
 func (c *BuildConfig) parseArchives(outArchivesFile, projectFile, projectFileOutFmt string) bool {
 	if !c.Archives.Enable {
 		return false
+	}
+	if outArchivesFile == "" {
+		outArchivesFile = c.MacroContext.ParserMacro(c.Archives.Name)
 	}
 	type fileInfo struct {
 		file string
@@ -499,7 +520,12 @@ func (c *BuildConfig) parseArchives(outArchivesFile, projectFile, projectFileOut
 						continue
 					}
 					defer file.Close()
-					t2 := strings.Split(strings.Replace(s, "../", "", -1), "/")
+					var t2 []string
+					if ioTools.IsStrAInStrB("../", s) {
+						t2 = strings.Split(strings.Replace(s, "../", "", -1), "/")
+					} else if ioTools.IsStrAInStrB("./", s) {
+						t2 = strings.Split(strings.Replace(s, "./", "", -1), "/")
+					}
 					t2[0] = f.path
 					//println("TargetFile:", s) "TargetFile: ../doc/command.md"
 					//println("GetTargetDir:", strings.Join(t2, "/")) "GetTargetDir: docs/command.md"
@@ -558,7 +584,12 @@ func (c *BuildConfig) parseArchives(outArchivesFile, projectFile, projectFileOut
 						continue
 					}
 					defer file.Close()
-					t2 := strings.Split(strings.Replace(s, "../", "", -1), "/")
+					var t2 []string
+					if ioTools.IsStrAInStrB("../", s) {
+						t2 = strings.Split(strings.Replace(s, "../", "", -1), "/")
+					} else if ioTools.IsStrAInStrB("./", s) {
+						t2 = strings.Split(strings.Replace(s, "./", "", -1), "/")
+					}
 					t2[0] = f.path
 					info, _ = os.Stat(s)
 					header, err := tar.FileInfoHeader(info, "")

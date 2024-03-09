@@ -250,6 +250,7 @@ func TestIsDefineMacro(t *testing.T) {
 	input := "888 ${define `test`,`a`} 8888"
 	input2 := "gwgwg"
 	var tM macro.Macro
+	tM.SetMacroSplit(global.MacroSplit)
 	t.Log(tM.IsDefineMacro(input))
 	t.Log(tM.IsDefineMacro(input2))
 }

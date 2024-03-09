@@ -5,6 +5,7 @@ import (
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/host"
 	"github.com/shirou/gopsutil/v3/mem"
+	"os"
 	"runtime"
 )
 
@@ -31,6 +32,15 @@ func printVar() {
 	println("-----------------")
 	printHardware()
 	println("-----------------")
+	_, err := os.Stat("changelog")
+	if err == nil {
+		file, err := os.ReadFile("changelog")
+		if err != nil {
+			return
+		}
+		println("Changelog:")
+		println(string(file))
+	}
 
 }
 func printHardware() {

@@ -4,6 +4,7 @@ import (
 	"github.com/aenjoy/BuilderX-go/builder"
 	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/aenjoy/BuilderX-go/router"
+	"github.com/aenjoy/BuilderX-go/service"
 	"github.com/aenjoy/BuilderX-go/utils/debugTools"
 	"github.com/aenjoy/BuilderX-go/utils/lock"
 	"os"
@@ -32,7 +33,7 @@ var (
 	notRunningCheck bool
 	projectName     string
 	auto            string
-	force           bool
+	install         string
 )
 
 var flagSet *pflag.FlagSet
@@ -56,11 +57,13 @@ func init() {
 	flagSet.StringVarP(&export, "export-conf", "e", "null", "导出一个配置文件示例。")
 	flagSet.StringVar(&exportType, "export-conf-type", "yaml", "默认使用yaml导出一个配置文件。支持yaml，json。")
 	flagSet.StringVarP(&projectName, "project-name", "n", "build from console", "BuilderX-自动构建的项目名。")
-	flagSet.BoolVarP(&force, "force", "F", false, "强制使用配置文件构建。如果指定了该参数，则 BuilderX将忽略项目路径下的构建配置文件,而使用命令行的配置文件强制构建.")
+	flagSet.BoolVarP(&builder.ForceOption, "force", "F", false, "强制使用配置文件构建。如果指定了该参数，则 BuilderX将忽略项目路径下的构建配置文件,而使用命令行的配置文件强制构建.")
 	flagSet.BoolVar(&notRunningCheck, "not-running-check", false, "不检查是否正在运行。如果指定了该参数，则 BuilderX将不检查服务是否正在运行,并可以运行多个实例。默认检查是否正在运行。")
 	flagSet.BoolVar(&notLoadDefault, "not-load-temple-default", false, "不加载默认模板配置文件(仅yaml,json不支持导入模板)。如果指定了该参数，则 BuilderX将不加载模板配置文件而使用内置配置。默认外部模板配置文件路径：当前目录下的config.yaml或/etc/BuilderX/config.yaml。")
 	flagSet.StringVarP(&global.GoExe, "go-exe", "g", "go", "Go编译器路径。如果指定了该参数,这使用指定路径的Go编译器进行构建,否则使用$path中的go编译。")
 	flagSet.Lookup("go-exe").NoOptDefVal = "go"
+	flagSet.StringVarP(&install, "install", "I", "", "安装BuilderX-Go到系统中。")
+	flagSet.Lookup("install").NoOptDefVal = "build-go"
 	flagSet.BoolVarP(&debugTools.DebugFlag, "debug", "d", false, "Debug mode 将显示一些额外信息，并忽略一些错误，可能会泄露某些数据。")
 	flagSet.BoolVarP(&cgo, "cgo", "c", false, "全局是否启用cgo。")
 	flagSet.BoolVarP(&version, "version", "v", false, "Show BuilderX version and exit.")
@@ -76,6 +79,16 @@ func main() {
 	if version {
 		printVar()
 		os.Exit(0)
+	}
+	if install != "" {
+		println("Install BuilderX-Go to system...")
+		if service.Install(install) {
+			println("Install BuilderX-Go to system success.")
+			os.Exit(0)
+		} else {
+			println("Install BuilderX-Go to system failed. Please check logs.")
+			os.Exit(1)
+		}
 	}
 	var hasBuildTask bool
 	exitChan := make(chan os.Signal)
@@ -134,9 +147,6 @@ func main() {
 			t.Build()
 		}
 		hasBuildTask = true
-	}
-	if force {
-		// todo
 	}
 	if auto != "null" {
 		task := builder.UsingAuto(auto, projectName)

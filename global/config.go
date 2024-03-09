@@ -32,4 +32,7 @@ func init() {
 	GoOSAndGoArchSupported = string(ioTools.GetOutputDirectly("go", "tool", "dist", "list"))
 	debugTools.PrintlnOnlyInDebugMode("GoOSAndGoArchSupported:", GoOSAndGoArchSupported)
 	RootDir, _ = os.Getwd()
+	logrus.Infoln("启动时间:", StartTime.Format("2006-01-02 15:04:05"))
+	logrus.Infoln("启动参数:", os.Args[1:])
+	logrus.Infoln("启动路径:", RootDir)
 }

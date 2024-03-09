@@ -1,48 +1,57 @@
 {
   "configType": "build-config-local",
-  "configApiVersion": 1,
+  "configFile": [],
+  "configApiVersion": 3,
   "configMinApiVersion": 1,
+  "name": "${define,`name`}",
+  "define": [
+    "version=${file,`version`}",
+    "name=BuilderX-Go"
+  ],
   "baseConfig": {
     "inputFile": ".",
-    "outputFile": "",
+    "outputFile": "./bin/",
     "ldflags": [
       "-s",
-      "-w"
-    ],
-    "varFlags": [
-      "main.Version=0.0.1-Dev",
-      "main.BuildTime=2024-2-21-18:25:19",
-      "main.GoVersion=1.21.5"
+      "-w",
+      "-X main.Version=${using,`version`}",
+      "-X main.BuildTime=${date,`2006-01-02--15:04:05`}",
+      "-X main.GoVersion=${command,`go env GOVERSION`}",
+      "-X main.GitTag=${command,`git rev-parse --short HEAD`}",
+      "-X main.Features=NoWeb,CGO_ENABLED=${command,`go env CGO_ENABLED`},${env,`Features`}",
+      "-X main.Platform=${command,`uname -s`}",
+      "-X main.PlatformVersion=${command,`uname -r`}"
     ],
     "v": true,
     "cgo": true
   },
   "otherFlags": {
-    "forceBuildPackage": false,
-    "buildProcess": null,
-    "race": false,
-    "msan": false,
-    "cover": false,
-    "coverMode": "",
-    "work": false,
-    "asmFlags": [],
-    "buildMode": "",
-    "buildVcs": "auto",
-    "compiler": "",
-    "gccgoflags": [],
-    "gcflags": [],
-    "linkshared": false,
-    "mod": "",
-    "modcacherw": false,
-    "modfile": "",
-    "overlay": "",
-    "pgo": "",
-    "pkgdir": "",
-    "tags": "",
     "targets": [
-      "linux/amd64",
+      "windows/386",
       "windows/amd64",
-      "darwin/amd64"
+      "windows/arm64",
+      "linux/386",
+      "linux/arm",
+      "linux/arm64",
+      "linux/amd64",
+      "darwin/amd64",
+      "darwin/arm64"
+    ]
+  },
+  "archives": {
+    "enable": true,
+    "name": "./bin/BuilderX-${using,`os`}-${using,`arch`}.zip",
+    "format": "zip",
+    "files": [
+      "./readme.md:README.md",
+      "./LICENSE:LICENSE",
+      "./doc:doc",
+      "./res:res"
+    ]
+  },
+  "checksum": {
+    "file": [
+      "./bin/BuilderX-${using,`os`}-${using,`arch`}.zip"
     ]
   }
 }

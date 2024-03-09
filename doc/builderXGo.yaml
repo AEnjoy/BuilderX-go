@@ -1,25 +1,46 @@
 configType: build-config-local
 configFile: []
-configApiVersion: 1
+configApiVersion: 3
 configMinApiVersion: 1
+name: "${define,`name`}"
+define:
+  -  "version=${file,`version`}"
+  -  "name=BuilderX-Go"
 baseConfig :
   inputFile : "."
   outputFile : "./bin/"
   ldflags :
     -  "-s"
     -  "-w"
-  varFlags :
-    -  "main.Version=${file,`version`}"
-    -  "main.BuildTime=${date,`2006-01-02--15:04:05`}"
-    -  "main.GoVersion=${command,`go env GOVERSION`}"
-    -  "main.GitTag=${command,`git rev-parse --short HEAD`}"
-    -  "main.Features=NoWeb,CGO_ENABLED=${command,`go env CGO_ENABLED`},${env,`Features`}"
-    -  "main.Platform=${command,`uname -s`}"
-    -  "main.PlatformVersion=${command,`uname -r`}"
+    -  "-X main.Version=${using,`version`}"
+    -  "-X main.BuildTime=${date,`2006-01-02--15:04:05`}"
+    -  "-X main.GoVersion=${command,`go env GOVERSION`}"
+    -  "-X main.GitTag=${command,`git rev-parse --short HEAD`}"
+    -  "-X main.Features=NoWeb,CGO_ENABLED=${command,`go env CGO_ENABLED`},${env,`Features`}"
+    -  "-X main.Platform=${command,`uname -s`}"
+    -  "-X main.PlatformVersion=${command,`uname -r`}"
   v: true
   cgo: true
 otherFlags:
   targets:
-    - "linux/amd64"
+    - "windows/386"
     - "windows/amd64"
+    - "windows/arm64"
+    - "linux/386"
+    - "linux/arm"
+    - "linux/arm64"
+    - "linux/amd64"
     - "darwin/amd64"
+    - "darwin/arm64"
+archives:
+  enable: true
+  name: "./bin/BuilderX-${using,`os`}-${using,`arch`}.zip"
+  format: "zip"
+  files:
+    - "./readme.md:README.md"
+    - "./LICENSE:LICENSE"
+    - "./doc:doc"
+    - "./res:res"
+checksum:
+  file:
+    - "./bin/BuilderX-${using,`os`}-${using,`arch`}.zip"

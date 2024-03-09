@@ -126,6 +126,8 @@ bool 当值为true时,表示启用打包
 
 输出的压缩包文件名 支持使用宏
 
+PS:${using \`os\`} 和 ${using \`arch\`} 中的os和arch在编译完成后会自动设置相应的值.
+
 ### format
 
 压缩包的格式.支持 zip, tar, ~~tar.bz2,~~ tar.gz,
@@ -143,11 +145,11 @@ bool 当值为true时,表示启用打包
 ```yaml
 archives:
   enable: true
-  name: "builderX-${targets `os`}-${targets `arch`}"
+  name: "BuilderX-${using,`os`}-${using,`arch`}.zip"
   format: "zip"
   files:
       - "./readme.md:README.md"
-      - "./LICENSE:"
+      - "./LICENSE:LICENSE"
       - "./doc:docs"
 ```
 
@@ -169,3 +171,10 @@ after:
     - "echo 编译成功"
 ```
 
+
+
+# 完整的例子
+
+[参考 Yaml格式](builderXGo.yaml)
+
+[参考 Json格式](builderXGo.json)

@@ -174,6 +174,7 @@ func UsingJson(f string, taskName string) (returnVal []Task) {
 }
 func jsonConfig2BuildConfig(config jsonConfig) (returnVal BuildConfig) {
 	var tMacro macro.Macro
+	tMacro.SetMacroSplit(global.MacroSplit)
 	tMacro.SetDefineContext(config.Define)
 	returnVal.MacroContext = tMacro
 	for _, v := range config.BaseConfig.VarFlags {

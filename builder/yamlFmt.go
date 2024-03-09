@@ -24,6 +24,8 @@ const (
 	C_Type_Multi  = "multiple-config"
 )
 
+var ForceOption bool
+
 type yamlConfig struct {
 	ConfigType          string   `yaml:"configType"`
 	ConfigFile          []string `yaml:"configFile"`
@@ -131,7 +133,7 @@ func UsingYaml(f string, taskName string) []Task {
 			}
 			//判断当前路径下有无配置文件,有则加载该配置
 			_, err := os.Stat("builderX.yaml")
-			if err == nil {
+			if err == nil && ForceOption == false {
 				t := config2.BaseConfig.RemoteConfig.RemoteStore
 				config2 = loadConfigYaml("builderX.yaml")
 				config2.BaseConfig.RemoteConfig.RemoteStore = t
@@ -167,7 +169,7 @@ func UsingYaml(f string, taskName string) []Task {
 		logrus.Infoln("Using local config mode: ")
 		//判断当前路径下有无配置文件,有则加载该配置
 		_, err := os.Stat("builderX.yaml")
-		if err == nil {
+		if err == nil && ForceOption == false {
 			config = loadConfigYaml("builderX.yaml")
 		}
 		var task Task
@@ -189,6 +191,7 @@ func UsingYaml(f string, taskName string) []Task {
 // yamlConfig to BuildConfig
 func yamlConfig2BuildConfig(config yamlConfig) (returnVal BuildConfig) {
 	var tMacro macro.Macro
+	tMacro.SetMacroSplit(global.MacroSplit)
 	tMacro.SetDefineContext(config.Define)
 	returnVal.MacroContext = tMacro
 	for _, v := range config.BaseConfig.VarFlags {

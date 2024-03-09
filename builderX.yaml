@@ -2,7 +2,7 @@ configType: build-config-local
 configFile: []
 configApiVersion: 3
 configMinApiVersion: 1
-name: "${define `name`}"
+name: "${define,`name`}"
 define:
     -  "version=${file,`version`}"
     -  "name=BuilderX-Go"
@@ -32,3 +32,15 @@ otherFlags:
         - "linux/amd64"
         - "darwin/amd64"
         - "darwin/arm64"
+archives:
+    enable: true
+    name: "./bin/BuilderX-${using,`os`}-${using,`arch`}.zip"
+    format: "zip"
+    files:
+        - "./readme.md:README.md"
+        - "./LICENSE:LICENSE"
+        - "./doc:doc"
+        - "./res:res"
+checksum:
+    file:
+        - "./bin/BuilderX-${using,`os`}-${using,`arch`}.zip"

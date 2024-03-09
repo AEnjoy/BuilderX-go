@@ -5,6 +5,7 @@ import "testing"
 var ma Macro
 
 func TestMacro_ParserDefineMacro(t *testing.T) {
+	ma.SetMacroSplit(",")
 	var str = []string{"MY_DEFINE_CONSTANT=1", "version=${file,`../../version`}", "name=BuilderX-Go", "${define,`defineName`,`defineValue`}", "v2=${using,`version`}"}
 	ma.SetDefineContext(str)
 	t.Logf(ma.GetDefine("MY_DEFINE_CONSTANT"))
@@ -19,6 +20,7 @@ func TestMacro_ParserDefineMacro(t *testing.T) {
 }
 
 func TestMacro_IsDefineMacro(t *testing.T) {
+	ma.SetMacroSplit(",")
 	str := "${define,`defineName`,`defineValue`}"
 	str2 := "v2=${using,`version`}"
 	t.Log(ma.IsDefineMacro(str))

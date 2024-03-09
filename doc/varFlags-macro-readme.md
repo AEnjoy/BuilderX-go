@@ -34,7 +34,7 @@ BuilderX定义了以下*内置的*全局宏指令:(未打勾的表示还未支�
 例如:
 
 ```yaml
-name: "${using `name`}"
+name: "${using,`name`}"
 define:
   - "MY_DEFINE_CONSTANT=1"
   - "version=${file,`version`}"
@@ -79,3 +79,5 @@ baseConfig:
 ## 局部宏指令
 
 局部宏指令,只会在当前配置文件中特定的字段中生效,不会影响其它字段.
+
+### 

@@ -3,7 +3,6 @@ package macro
 import (
 	"encoding/base64"
 	"encoding/json"
-	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/aenjoy/BuilderX-go/utils/ioTools"
 	tools "github.com/aenjoy/BuilderX-go/utils/jsonYamlTools"
 	"github.com/sirupsen/logrus"
@@ -39,7 +38,7 @@ func (m *Macro) ParserMacro(str string) (retVal string) {
 	matches := re.FindAllStringSubmatch(str, -1)
 	for i, match := range matches {
 		// match[1] : "指令,`arg1`,`arg2`,..."
-		command := strings.Split(match[1], global.MacroSplit)
+		command := strings.Split(match[1], m.macroSplit)
 		instruct := command[0]
 		if len(command) == 2 {
 			args := strings.Replace(strings.Join(command[1:], " "), "`", "", -1) //所有的参数 带空格 如"exec a b c" 或"fileName"
@@ -124,6 +123,7 @@ func HaveMacroBeforeCompile(str string) bool {
 type Macro struct {
 	defineContext map[string]string
 	init          bool
+	macroSplit    string
 }
 
 func (m *Macro) SetDefineContext(str []string) {
@@ -161,7 +161,7 @@ func (m *Macro) ParserDefineMacro(str string) (retVal string) {
 	}
 	matches := re.FindAllStringSubmatch(str, -1)
 	for i, match := range matches {
-		command := strings.Split(match[1], global.MacroSplit)
+		command := strings.Split(match[1], m.macroSplit)
 		if len(command) < 2 {
 			logrus.Warningf("command[%d] format error: %s. \n", i, match[1])
 			logrus.Infoln("ignore this macro.")
@@ -199,4 +199,8 @@ func (m *Macro) GetDefine(define string) string {
 	} else {
 		return ""
 	}
+}
+
+func (m *Macro) SetMacroSplit(split string) {
+	m.macroSplit = split
 }

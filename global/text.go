@@ -5,7 +5,6 @@ const Help = `WebServerOption:
 	-w, --web    Start Dashboard
 	参数-w与LocalToolsOption冲突.
 LocalToolsOption:
-	-F, --out-file-name-fmt[="a"] or (default "default")
 	-l, --local [="."]
 	-r, --remote [="github.com/aenjoy/BuilderX-go"]
 		--remote-clone-way [way] way:https,git,ssh。 (default "https")
@@ -16,6 +15,8 @@ LocalToolsOption:
 	-e, --export-conf fileName
 		--export-conf-type yaml or json (default "yaml")
 	-n, --project-name string
+	    --out-file-name-fmt[="a"] or (default "default")
+	-F, --force 
 GlobalOption:
 	--not-running-check
 	--not-load-temple-default
@@ -23,6 +24,7 @@ GlobalOption:
 	-d, --debug
 	-g, --go-exe string[="go"]
 ------------
+	-I, --install <name>
 	-h, --help
 	-v, --version
 	指定-h或-v将忽略其它参数

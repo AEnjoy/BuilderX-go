@@ -48,7 +48,9 @@ BuilderX-go支持在本地使用命令行做任务构建.
 >
 > ----------------------
 >
-> ​		-h,--help
+>           -I, --install <name>
+> 
+> ​		-h, --help
 >
 > ​		-v, --version
 
@@ -205,6 +207,12 @@ go run main.go -r="github.com/aenjoy/BuilderX-go"
 指定go程序的路径 适用于安装了多个go程序的情况.默认值为go,即使用系统环境变量中的第一go程序.
 
 ## 其它
+
+### -I, --install <name>
+
+将BuilderX安装到系统环境变量中.如果指定了name,则命名为name 默认为build-go.
+
+该参数仅在安装BuilderX时使用,且仅支持非Windows操作系统.
 
 ###  -h, --help
 
