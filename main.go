@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/aenjoy/BuilderX-go/builder"
+	"github.com/aenjoy/BuilderX-go/app/builder"
+	"github.com/aenjoy/BuilderX-go/app/service"
 	"github.com/aenjoy/BuilderX-go/global"
 	"github.com/aenjoy/BuilderX-go/router"
-	"github.com/aenjoy/BuilderX-go/service"
 	"github.com/aenjoy/BuilderX-go/utils/debugTools"
 	"github.com/aenjoy/BuilderX-go/utils/lock"
 	"os"

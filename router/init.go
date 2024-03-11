@@ -7,7 +7,8 @@ import (
 	"net/http"
 )
 
-func regRouter() {}
+var RouterGroupApp []CommonRouter
+
 func InitRouter() {
 	// 初始化路由
 	global.Router = gin.Default()
@@ -45,8 +46,14 @@ func InitRouter() {
 
 		c.Next()
 	})
-	regRouter()
 	static()
+	//路由组
+	RouterGroupApp = commonGroups()
+	PrivateGroup := global.Router.Group("/api/v1")
+	for _, router := range RouterGroupApp {
+		router.InitRouter(PrivateGroup)
+	}
+	//启动
 	err := global.Router.Run(":" + global.WebPort)
 	if err != nil {
 		logrus.Errorln("Web Server start error, error Info is: ", err)
