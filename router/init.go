@@ -12,6 +12,7 @@ var RouterGroupApp []CommonRouter
 func InitRouter() {
 	// 初始化路由
 	global.Router = gin.Default()
+	global.Router.MaxMultipartMemory = 50 << 20 //50 Gb
 	global.Router.Use(func(c *gin.Context) {
 		method := c.Request.Method
 		origin := c.Request.Header.Get("Origin") //请求头部

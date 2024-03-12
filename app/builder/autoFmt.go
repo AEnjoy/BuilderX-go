@@ -9,6 +9,14 @@ import (
 )
 
 func UsingAuto(f string, taskName string) (task []Task) {
+	stat, err := os.Stat(f)
+	if err != nil {
+		logrus.Errorln("Error opening file: ", f, err)
+		return nil
+	}
+	if stat.IsDir() {
+		return append(task, UsingLocal(f))
+	}
 	file, err := os.Open(f)
 	if err != nil {
 		logrus.Errorln("Error opening file: ", f, err)

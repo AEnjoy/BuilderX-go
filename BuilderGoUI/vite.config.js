@@ -1,5 +1,3 @@
-
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
@@ -14,7 +12,7 @@ export default defineConfig({
     proxy: {
       '/api': {
         // 后台地址
-        target: 'http://localhost:8088/',
+        target: 'http://localhost:18088/',
         changeOrigin: true,
         secure: false,
         ws: true,

@@ -12,5 +12,6 @@ func commonGroups() []CommonRouter {
 	return []CommonRouter{
 		&TaskRouter{},
 		&FileRouter{},
+		&BaseRouter{},
 	}
 }

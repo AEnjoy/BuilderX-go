@@ -10,5 +10,6 @@ type FileRouter struct{}
 func (s *FileRouter) InitRouter(Router *gin.RouterGroup) {
 	taskRouter := Router.Group("file")
 	taskApi := v1.ApiGroupApp.FileApi
-	taskRouter.POST("/list", taskApi.FileList)
+	taskRouter.POST("/list", taskApi.DirList)
+	taskRouter.POST("/select", taskApi.FileSelect)
 }
